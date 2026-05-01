@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eChannel Dashboard — STC Kuwait</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--p:#6B1F7C;--pd:#4e1660;--pl:#8a2a9e;--bg:#f5f3f7;--surface:#fff;--border:#e5e0eb;--bl:#f0ecf4;--text:#1a0a20;--muted:#7a6882;--faint:#b0a0bb;--green:#1D9E75;--gl:#E1F5EE;--blue:#185FA5;--bluel:#E6F1FB;--amber:#BA7517;--ambl:#FAEEDA;--red:#E24B4A;--redl:#FCEBEB;--coral:#D85A30;--corall:#FAECE7;--r:10px;--rs:7px;--rl:14px;--sh:0 1px 3px rgba(107,31,124,.08),0 1px 2px rgba(0,0,0,.04)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ── LOGIN ──────────────────────────────── */
+#LS{display:flex;min-height:100vh}
+.ll{width:52%;background:var(--p);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:48px}
+.ll::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 80% 20%,rgba(155,45,181,.6),transparent 60%),radial-gradient(ellipse 50% 50% at 10% 90%,rgba(200,77,181,.3),transparent 60%)}
+.lpat{position:absolute;inset:0;opacity:.07;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:24px 24px}
+.lbrand{position:relative;z-index:2;text-align:center}
+.stclogo{width:88px;height:88px;background:white;border-radius:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.lbn{font-size:36px;font-weight:700;color:white;letter-spacing:-1px}.lbs{font-size:13px;color:rgba(255,255,255,.6);margin-top:6px;letter-spacing:.5px;text-transform:uppercase}
+.ltag{margin-top:48px;color:rgba(255,255,255,.7);font-size:14px;max-width:280px;text-align:center;line-height:1.8}.ltag strong{color:white;font-weight:600}
+.lr{flex:1;display:flex;align-items:center;justify-content:center;padding:48px;background:white}
+.lbox{width:100%;max-width:400px}
+.lw{font-size:26px;font-weight:700;margin-bottom:6px}.lws{font-size:14px;color:var(--muted);margin-bottom:36px}.lws span{color:var(--p);font-weight:600}
+.fg{margin-bottom:18px}.flbl{display:block;font-size:12px;font-weight:600;margin-bottom:7px}
+.fw{position:relative}.fi{width:100%;padding:12px 44px 12px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;background:var(--bg);outline:none;transition:border-color .2s;font-family:inherit}
+.fi:focus{border-color:var(--p);background:white}.fi.err{border-color:var(--red)}
+.fdom{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--p);font-weight:600;pointer-events:none}
+.feye{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--faint);width:17px;height:17px;cursor:pointer}
+.fhint{font-size:11px;color:var(--muted);margin-top:5px}
+.lbtn{width:100%;padding:13px;background:var(--p);color:white;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.lbtn:hover{background:var(--pl);transform:translateY(-1px);box-shadow:0 6px 20px rgba(107,31,124,.3)}
+.lerr{background:var(--redl);border:1px solid rgba(226,75,74,.2);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:#791F1F;margin-bottom:16px;display:none;align-items:center;gap:8px}
+.ldiv{text-align:center;font-size:11px;color:var(--faint);margin:20px 0;position:relative}
+.ldiv::before,.ldiv::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}.ldiv::before{left:0}.ldiv::after{right:0}
+.alink{text-align:center;font-size:12px;color:var(--muted)}.alink a{color:var(--p);font-weight:600;cursor:pointer}
+
+/* ── MODALS ─────────────────────────────── */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.mov.open{opacity:1;pointer-events:all}
+.modal{background:white;border-radius:var(--rl);padding:26px;width:480px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.18);transform:translateY(8px);transition:transform .2s}
+.mov.open .modal{transform:translateY(0)}
+.mhdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.mico{width:40px;height:40px;background:var(--p);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mico svg{width:20px;height:20px}
+.mtit{font-size:16px;font-weight:700}.msub{font-size:12px;color:var(--muted);margin-top:2px}
+.minp{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 13px;font-size:13px;outline:none;font-family:inherit;margin-bottom:12px}
+.minp:focus{border-color:var(--p)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--text);transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn.purple{background:var(--p);color:white;border-color:var(--p)}.btn.purple:hover{background:var(--pl)}
+.btn.danger{color:var(--red);border-color:rgba(226,75,74,.3)}.btn.danger:hover{background:var(--redl)}
+.btn svg{width:12px;height:12px}
+.ulist{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--rs);margin-bottom:10px}
+.urow{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--bl);font-size:12px}.urow:last-child{border-bottom:none}
+.uav{width:28px;height:28px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+.uinfo{flex:1;min-width:0}.unm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uem{font-size:10px;color:var(--muted)}
+.udel{width:24px;height:24px;border:none;background:none;cursor:pointer;color:var(--faint);border-radius:4px;transition:all .15s}.udel:hover{background:var(--redl);color:var(--red)}
+.ibox{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.ibox strong{color:var(--text)}.ibox code{background:rgba(107,31,124,.1);color:var(--p);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px}
+
+/* ── APP ────────────────────────────────── */
+#AS{display:none}
+.app{display:flex;min-height:100vh}
+.sb{width:228px;background:var(--p);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.main{margin-left:228px;flex:1;min-height:100vh}
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 18px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px}
+
+/* ── SIDEBAR ────────────────────────────── */
+.sb-logo{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-lr{display:flex;align-items:center;gap:10px}
+.sb-lm{width:34px;height:34px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-an{font-size:14px;font-weight:700;color:white}.sb-an span{color:rgba(255,255,255,.55)}
+.sb-as{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.nav{padding:7px 6px;flex:1}
+.nl{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.8px;text-transform:uppercase;padding:0 8px;margin:10px 0 3px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;color:rgba(255,255,255,.6);font-size:12px;font-weight:500;transition:all .15s;margin-bottom:1px}
+.ni:hover{background:rgba(255,255,255,.1);color:white}.ni.active{background:rgba(255,255,255,.15);color:white}
+.ni svg{width:14px;height:14px;flex-shrink:0}
+.nbdg{margin-left:auto;background:rgba(255,255,255,.2);color:white;font-size:10px;font-weight:700;padding:1px 5px;border-radius:7px}
+.sb-user{padding:11px 9px;border-top:1px solid rgba(255,255,255,.12)}
+.uchip{display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(255,255,255,.1);border-radius:7px}
+.ucav{width:27px;height:27px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+.ucn{font-size:12px;font-weight:600;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.logout{display:flex;align-items:center;gap:5px;padding:6px 9px;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.4);font-size:11px;margin-top:4px;transition:all .15s}
+.logout:hover{background:rgba(226,75,74,.2);color:#f87171}
+
+/* ── TOPBAR ─────────────────────────────── */
+.tbl{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.tbr{display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap}
+.pgt{font-size:14px;font-weight:700}.pgs{font-size:11px;color:var(--muted)}
+.tbtn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:var(--rs);font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--text);transition:all .15s;font-family:inherit;white-space:nowrap}
+.tbtn:hover{background:var(--bg)}.tbtn.primary{background:var(--p);color:white;border-color:var(--p)}.tbtn.primary:hover{background:var(--pl)}
+.tbtn.danger{color:var(--red);border-color:rgba(226,75,74,.3)}.tbtn.danger:hover{background:var(--redl)}
+.tbtn svg{width:12px;height:12px}
+.xinp{display:none}
+/* date filter */
+.dfilt{display:flex;align-items:center;gap:4px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:3px 8px;font-size:11px}
+.dfilt input{border:none;background:transparent;font-size:11px;outline:none;width:100px;font-family:inherit}
+.dfilt span{color:var(--faint);font-size:10px}
+.dfilt button{background:var(--p);color:white;border:none;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+/* quick btns */
+.qbtn{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--muted);transition:all .15s;font-family:inherit;white-space:nowrap}
+.qbtn:hover{border-color:var(--p);color:var(--p)}.qbtn.active{background:var(--p);color:white;border-color:var(--p)}
+
+/* ── CHANNEL FILTER BAR ─────────────────── */
+.cfbar{background:white;border-bottom:1px solid var(--border);padding:7px 18px;display:none;align-items:center;gap:6px;flex-wrap:wrap}
+.cfbar.show{display:flex}
+.fbar-lbl{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.4px;margin-right:3px;flex-shrink:0}
+.fbtn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--muted);transition:all .15s;white-space:nowrap}
+.fbtn:hover{border-color:var(--p);color:var(--p)}.fbtn.sel{background:var(--p);color:white;border-color:var(--p)}
+.fbtn.clr{border-color:var(--redl);color:var(--red);background:var(--redl)}
+
+/* ── PAGES ──────────────────────────────── */
+.page{display:none}.page.active{display:block}
+.content{padding:18px}
+
+/* ── KPI CARDS ──────────────────────────── */
+.kg8{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-bottom:14px}
+.kg4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.kcard{background:white;border:1px solid var(--border);border-radius:var(--r);padding:12px 11px 10px;box-shadow:var(--sh);position:relative;overflow:hidden;border-left:3px solid var(--p)}
+.kcard.kg{border-left-color:var(--green)}.kcard.kb{border-left-color:var(--blue)}.kcard.ka{border-left-color:var(--amber)}.kcard.kr{border-left-color:var(--red)}.kcard.kc{border-left-color:var(--coral)}.kcard.kgr{border-left-color:#7F77DD}
+.klbl{font-size:8px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kval{font-size:16px;font-weight:800;line-height:1.1;word-break:break-all}
+.ksub{font-size:9px;color:var(--faint);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kico{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.kico svg{width:14px;height:14px}
+
+/* ── CARDS ──────────────────────────────── */
+.card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.chdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:11px}
+.ct{font-size:12px;font-weight:700}.cs{font-size:10px;color:var(--faint);margin-top:1px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.cspan2{grid-column:1/-1}
+.cw{position:relative;width:100%}
+
+/* ── BARS ───────────────────────────────── */
+.brow{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.blbl{font-size:11px;color:var(--muted);min-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btrk{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bfil{height:100%;border-radius:3px;transition:width .5s ease}
+.bval{font-size:11px;font-weight:700;min-width:32px;text-align:right}
+
+/* ── SLA CARD ───────────────────────────── */
+.sla-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sla-item{background:var(--bg);border-radius:var(--rs);padding:10px 12px;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.sla-item:hover{border-color:var(--p);background:#fdf9ff}
+.sla-lbl{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+.sla-sub{font-size:10px;color:var(--muted)}
+.sla-val{font-size:20px;font-weight:800;margin-top:4px}
+.sla-channels{font-size:10px;color:var(--faint);margin-top:3px}
+
+/* ── TAGS ───────────────────────────────── */
+.twrap{display:flex;flex-wrap:wrap;gap:5px}
+.tpill{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.tpill .tn{font-size:9px;opacity:.7}
+
+/* ── BOT CARDS ──────────────────────────── */
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:10px}
+.bcard{background:white;border:1px solid var(--border);border-radius:var(--r);padding:12px;box-shadow:var(--sh)}
+.bchdr{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--bl)}
+.bcav{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.bcnm{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bcst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.bcs{text-align:center;padding:6px 3px;background:var(--bg);border-radius:5px}
+.bcsv{font-size:14px;font-weight:800}.bcsl{font-size:9px;color:var(--faint);margin-top:1px}
+.flbar{margin-top:8px}
+.flbl2{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
+.flt{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.flf{height:100%;border-radius:3px;background:var(--green)}
+
+/* ── AGENT TABLE ────────────────────────── */
+.atbl{width:100%;border-collapse:collapse}
+.atbl th{background:var(--bg);font-size:9px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.4px;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.atbl td{padding:8px 10px;font-size:11px;border-bottom:1px solid var(--bl)}
+.atbl tr:last-child td{border-bottom:none}.atbl tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:20px;font-size:10px;font-weight:700}
+.bg{background:var(--gl);color:#085041}.ba{background:var(--ambl);color:#633806}.br{background:var(--redl);color:#791F1F}.bb{background:var(--bluel);color:#0C447C}.bpur{background:#EEEDFE;color:#3C3489}
+
+/* ── INSIGHT ────────────────────────────── */
+.ins{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--rs);font-size:11px;margin-bottom:5px}
+.ins.info{background:var(--bluel);border:1px solid #93C5FD44}.ins.success{background:var(--gl);border:1px solid #86EFAC44}
+.ins.warning{background:#FFF9EB;border:1px solid #FCD34D44}.ins.danger{background:var(--redl);border:1px solid #FCA5A544}
+.idot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}.itx{line-height:1.5}.itx strong{font-weight:700}
+
+/* ── PROGRESS ───────────────────────────── */
+.pi{margin-bottom:9px}.prow{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.pn{color:var(--muted)}.pv{font-weight:700}
+.pt{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}.pf{height:100%;border-radius:3px}
+
+/* ── SEARCH ─────────────────────────────── */
+.sbar{display:flex;align-items:center;gap:7px;background:white;border:1.5px solid var(--border);border-radius:var(--rs);padding:0 10px;height:34px;transition:border-color .15s;flex:1}
+.sbar:focus-within{border-color:var(--p)}.sbar svg{width:13px;height:13px;color:var(--faint);flex-shrink:0}
+.sbar input{border:none;outline:none;font-size:12px;background:transparent;width:100%;font-family:inherit}
+.src-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:9px}
+.cav{width:38px;height:38px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0}
+.crow{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg);border-radius:var(--rs);margin-bottom:4px;font-size:10px;flex-wrap:wrap}
+
+/* ── CHAT BOT ───────────────────────────── */
+.cwrap{display:grid;grid-template-columns:1fr 260px;gap:12px;height:calc(100vh - 54px - 80px)}
+.cbox{background:white;border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden}
+.chd{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.bav{width:30px;height:30px;background:var(--p);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bav svg{width:15px;height:15px}
+.cmsgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%}.msg.user{align-self:flex-end}.msg.ai{align-self:flex-start}
+.mbbl{padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.6}
+.msg.user .mbbl{background:var(--p);color:white;border-bottom-right-radius:3px}
+.msg.ai .mbbl{background:var(--bg);border:1px solid var(--border);border-bottom-left-radius:3px}
+.mtime{font-size:9px;color:var(--faint);margin-top:3px}.msg.user .mtime{text-align:right}
+.cfoot{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:6px}
+.cinp{flex:1;border:1.5px solid var(--border);border-radius:var(--rs);padding:7px 10px;font-size:12px;background:var(--bg);outline:none;font-family:inherit;resize:none}
+.cinp:focus{border-color:var(--p);background:white}
+.xsbtn{width:32px;height:32px;background:var(--p);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xsbtn:hover{background:var(--pl)}.xsbtn:disabled{background:var(--faint);cursor:not-allowed}
+.xsbtn svg{width:14px;height:14px}
+.scard2{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.shdr{padding:10px 12px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700}
+.sitem{padding:7px 8px;font-size:10px;color:var(--muted);cursor:pointer;border-radius:var(--rs);margin:2px 4px}
+.sitem:hover{background:#f5f0f7;color:var(--p)}
+
+/* ── UPLOAD ZONE ────────────────────────── */
+.uzn{border:2px dashed var(--border);border-radius:var(--r);padding:32px 20px;text-align:center;cursor:pointer;background:white;transition:all .2s}
+.uzn:hover,.uzn.drag{border-color:var(--p);background:#fdf9ff}
+.empty2{text-align:center;padding:36px 20px}
+.eico{width:44px;height:44px;background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 11px}
+.eico svg{width:20px;height:20px;color:var(--faint)}
+
+/* ── AB UPLOAD ──────────────────────────── */
+.ab-up{background:#fdf9ff;border:2px dashed rgba(107,31,124,.25);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+.ab-up .ab-ico{width:40px;height:40px;background:#f5f0f7;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── TYPING ─────────────────────────────── */
+.typing{display:flex;align-items:center;gap:3px;padding:8px 11px;background:var(--bg);border:1px solid var(--border);border-radius:9px;border-bottom-left-radius:3px;width:fit-content}
+.typing span{width:4px;height:4px;background:var(--faint);border-radius:50%;animation:b 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes b{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:s .7s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+/* ── HANDOVER REPORT ────────────────── */
+.hov-header{background:linear-gradient(135deg,#1a0a2e 0%,#4a1060 40%,#6B1F7C 70%,#9B3BAD 100%);color:white;border-radius:var(--rl);padding:22px 28px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 32px rgba(107,31,124,.35);position:relative;overflow:hidden}
+.hov-header::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hov-header::after{content:'';position:absolute;bottom:-60px;left:20%;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.03)}
+.hov-title{font-size:20px;font-weight:800;letter-spacing:-.4px;position:relative;z-index:1}
+.hov-date{font-size:13px;opacity:.75;margin-top:4px;position:relative;z-index:1}
+.hov-table{border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 24px rgba(107,31,124,.1);background:white}
+.hov-col-head{display:grid;grid-template-columns:220px repeat(4,1fr)}
+.hov-col-cat{background:#f8f5fc;padding:13px 18px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--border)}
+.hov-shift-head{text-align:center;border-bottom:2px solid var(--border);padding:0}
+.hov-shift-inner{padding:11px 8px 9px;font-size:12px;font-weight:800;letter-spacing:.2px;color:white}
+.hov-shift-time{font-size:10px;padding:5px 8px 8px;font-weight:600;opacity:.8;color:white}
+/* Shift colors - beautiful gradients */
+.s1-bg{background:linear-gradient(160deg,#0f2744,#1e3d6e)}
+.s2-bg{background:linear-gradient(160deg,#4a1060,#7B2F8E)}
+.s3-bg{background:linear-gradient(160deg,#8a2500,#c4430e)}
+.tot-bg{background:linear-gradient(160deg,#1a1a2e,#2d2d4e)}
+/* Section headers */
+.hov-sec-row{display:grid;grid-template-columns:220px repeat(4,1fr)}
+.hov-sec-cell{padding:9px 18px;font-size:10px;font-weight:800;color:white;letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.sec-bot{background:linear-gradient(90deg,#0f7a5a,#1D9E75)}
+.sec-agent{background:linear-gradient(90deg,#0d3d73,#185FA5)}
+.sec-social{background:linear-gradient(90deg,#4a3d9e,#6d63d4)}
+.sec-summary{background:linear-gradient(90deg,#8a2a0a,#D85A30)}
+/* Data rows */
+.hov-data-row{display:grid;grid-template-columns:220px repeat(4,1fr);transition:background .1s}
+.hov-data-row:hover .hov-dc{background:#faf7ff}
+.hov-data-row:hover .hov-dl{background:#f0ebf7}
+.hov-data-row:last-child .hov-dc,.hov-data-row:last-child .hov-dl{border-bottom:none}
+.hov-dl{padding:10px 18px;font-size:12px;font-weight:600;color:var(--text);background:#faf7ff;border-bottom:1px solid #ede8f5;border-right:2px solid #e0d8ee}
+.hov-dc{padding:10px 14px;font-size:12px;color:var(--text);border-bottom:1px solid #f0ecf8;text-align:center}
+.hov-dc.tot{background:#f5f0fc;font-weight:800;color:var(--p);border-left:2px solid #e0d0f0}
+.hov-dc.num{font-weight:700}
+.hov-dc.big{font-size:16px;font-weight:900;color:var(--p)}
+.hov-dc.big.tot{font-size:18px}
+.hov-dc.time{font-family:monospace;font-size:11px;letter-spacing:.3px}
+.hov-dc.time.tot{font-size:12px}
+.hov-print{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;color:white;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;position:relative;z-index:1;backdrop-filter:blur(4px)}
+.hov-print:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
+.hov-shifts-info{font-size:11px;opacity:.65;text-align:right;line-height:1.7;position:relative;z-index:1}
+@media print{
+  .sb,.topbar,.cfbar,.hov-print,.page:not(#page-handover){display:none!important}
+  #page-handover{display:block!important;padding:0!important}
+  .main{margin-left:0!important;padding:0!important}
+  body{background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hov-header,.hov-shift-inner,.hov-shift-time,.hov-sec-cell{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hov-table{font-size:10px!important}
+  .hov-dl,.hov-dc{padding:5px 8px!important;font-size:10px!important}
+  .hov-shift-inner{padding:6px 4px!important;font-size:10px!important}
+  .hov-shift-time{padding:3px 4px 5px!important;font-size:9px!important}
+  .hov-sec-cell{padding:5px 10px!important;font-size:9px!important}
+  .hov-header{padding:12px 16px!important;margin-bottom:10px!important;border-radius:8px!important}
+  .hov-title{font-size:14px!important}
+  .hov-dc.big{font-size:13px!important}
+  .hov-dc.big.tot{font-size:14px!important}
+  * {page-break-inside: avoid}
+  @page{margin:8mm;size:A4 portrait}
+}
+@media(max-width:900px){.kg8,.kg4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}.ll{display:none}.cwrap{grid-template-columns:1fr}.sb{display:none}.main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════ -->
+<div id="LS">
+  <div class="ll"><div class="lpat"></div>
+    <div class="lbrand">
+      <div class="stclogo"><svg viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="12" fill="#6B1F7C"/><text x="28" y="38" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-weight="800" font-size="22" fill="white">stc</text></svg></div>
+      <div class="lbn">stc Kuwait</div><div class="lbs">eChannel Dashboard</div>
+      <div class="ltag">Your <strong>unified analytics</strong> platform for channels, bots &amp; agents.</div>
+    </div>
+  </div>
+  <div class="lr"><div class="lbox">
+    <div class="lw">Welcome back 👋</div>
+    <div class="lws">Sign in with your <span>@stc.com.kw</span> account</div>
+    <div class="lerr" id="lerr"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3M8 10v.5"/></svg><span id="lerrmsg">Invalid email or password</span></div>
+    <div class="fg"><label class="flbl">Email address</label>
+      <div class="fw"><input class="fi" id="lemail" type="text" placeholder="yourname" oninput="clearLE()">
+        <span class="fdom">@stc.com.kw</span></div>
+      <div class="fhint">Enter username only</div></div>
+    <div class="fg"><label class="flbl">Password</label>
+      <div class="fw"><input class="fi" id="lpass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <svg class="feye" id="eyeI" onclick="toggleEye()" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.5"/></svg></div></div>
+    <button class="lbtn" onclick="doLogin()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3l4 4-4 4M14 7H6M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/></svg>Sign in
+    </button>
+    <div class="ldiv">or</div>
+    <div class="alink">Admin? <a onclick="openAdmin()">Manage users</a></div>
+  </div></div>
+</div>
+
+<!-- ══ ADMIN MODAL ══════════════════════════════════════════════════════ -->
+<div class="mov" id="adminMov">
+  <div class="modal">
+    <div class="mhdr"><div class="mico"><svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></div><div><div class="mtit">User Management</div><div class="msub">Add/remove employee accounts</div></div></div>
+    <div id="adAuth"><div class="flbl" style="margin-bottom:6px">Admin password</div>
+      <div style="display:flex;gap:7px"><input type="password" class="minp" id="adPInp" placeholder="admin123" style="margin-bottom:0" onkeydown="if(event.key==='Enter')verifyAd()"><div class="btn purple" onclick="verifyAd()">Verify</div></div>
+      <div id="adPerr" style="color:var(--red);font-size:11px;margin-top:5px;display:none">Incorrect password</div></div>
+    <div id="adMng" style="display:none">
+      <div class="ibox"><strong>Excel upload:</strong> cols <code>name</code>, <code>email</code>, <code>password</code><br>Login: <code>username@stc.com.kw</code></div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <label class="btn" for="usrsXL">Upload Excel</label><input type="file" id="usrsXL" class="xinp" accept=".xlsx,.xls,.csv" onchange="loadUsrsExcel(this)">
+        <div class="btn purple" onclick="showAddU()">+ Add User</div></div>
+      <div id="addUF" style="display:none;background:var(--bg);border-radius:var(--rs);padding:10px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+          <input class="minp" id="nwN" placeholder="Full name" style="margin-bottom:0">
+          <input class="minp" id="nwU" placeholder="username" style="margin-bottom:0"></div>
+        <input class="minp" id="nwP" type="password" placeholder="Password" style="margin-bottom:7px">
+        <div style="display:flex;gap:6px"><div class="btn purple" onclick="addU()">Add</div><div class="btn" onclick="hideAddU()">Cancel</div></div></div>
+      <div class="ulist" id="usrList"></div>
+      <div style="margin-top:10px"><div class="flbl" style="margin-bottom:5px">Change admin password</div>
+        <div style="display:flex;gap:7px"><input type="password" class="minp" id="nwAP" placeholder="New password" style="margin-bottom:0"><div class="btn" onclick="changeAP()">Update</div></div></div></div>
+    <div class="mfoot"><div class="btn" onclick="closeAdmin()">Close</div></div></div></div>
+
+<!-- ══ API MODAL ════════════════════════════════════════════════════════ -->
+<div class="mov" id="apiMov">
+  <div class="modal">
+    <div class="mhdr"><div class="mico"><svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5"><circle cx="7" cy="10" r="5"/><path d="M11.5 8H18M16 6v4"/></svg></div><div><div class="mtit">API Key</div><div class="msub">For Excel Bot AI features</div></div></div>
+    <input type="password" class="minp" id="apiI" placeholder="sk-ant-api03-…">
+    <div class="mfoot"><div class="btn" onclick="closeApiMov()">Cancel</div><div class="btn purple" onclick="saveAK()">Save</div></div>
+    <div style="font-size:11px;color:var(--faint);margin-top:8px">Get key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--p)">console.anthropic.com</a></div></div></div>
+
+<!-- ══ APP ══════════════════════════════════════════════════════════════ -->
+<div id="AS">
+<div class="app">
+  <aside class="sb">
+    <div class="sb-logo">
+      <div class="sb-lr">
+        <div class="sb-lm"><svg viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="12" fill="#6B1F7C"/><text x="28" y="38" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-weight="800" font-size="22" fill="white">stc</text></svg></div>
+        <div><div class="sb-an">e<span>Channel</span></div><div class="sb-as">STC Kuwait</div></div></div></div>
+    <nav class="nav">
+      <div class="nl">Overview</div>
+      <div class="ni" onclick="go('upload')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9M5 4l3-3 3 3M2 13h12"/></svg>Upload Files<span class="nbdg" id="upBdg" style="background:#BA7517">!</span></div>
+      <div class="ni active" onclick="go('dashboard')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+      <div class="ni" onclick="go('handover')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M8 3v10"/><circle cx="8" cy="8" r="6.5"/></svg>Handover Report</div>
+      <div class="ni" onclick="go('bots')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="9" rx="2"/><path d="M5 5V3a3 3 0 016 0v2"/><circle cx="5.5" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="10.5" cy="9.5" r="1" fill="currentColor" stroke="none"/></svg>Bots<span class="nbdg" id="botBdg" style="display:none">0</span></div>
+      <div class="ni" onclick="go('social')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="4" r="2.5"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 7L9.5 5M6.5 9L9.5 11"/></svg>Social Media</div>
+      <div class="ni" onclick="go('abandoned')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v5l3 2"/><circle cx="8" cy="8" r="6.5"/></svg>Abandoned Chat<span class="nbdg" id="abBdg" style="display:none">0</span></div>
+      <div class="ni" onclick="go('agents')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/></svg>Agents<span class="nbdg" id="agBdg" style="display:none">0</span></div>
+      <div class="nl">Performance</div>
+      <div class="ni" onclick="go('speed')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4v4l2.5 2"/></svg>IRT / FRT / AHT</div>
+      <div class="ni" onclick="go('tags')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h6l6 6-6 6-6-6V2z"/><circle cx="5" cy="5" r="1" fill="currentColor" stroke="none"/></svg>Tags</div>
+      <div class="nl">AI Tools</div>
+      <div class="ni" onclick="go('search')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M14 14l-3.5-3.5"/></svg>Search Customer</div>
+      <div class="ni" onclick="go('bot')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v7a1 1 0 01-1 1H8l-3 2.5V12H3a1 1 0 01-1-1V4z"/></svg>Excel Bot</div>
+      <div class="ni" onclick="go('data')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Raw Data<span class="nbdg" id="rwBdg" style="display:none">0</span></div>
+    </nav>
+    <div class="sb-user">
+      <div class="uchip"><div class="ucav" id="ucAv">?</div><div class="ucn" id="ucNm">—</div></div>
+      <div class="logout" onclick="doLogout()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6"/></svg>Sign out</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="tbl"><div><div class="pgt" id="pgT">Dashboard</div><div class="pgs" id="pgS">Upload Excel to begin</div></div></div>
+      <div class="tbr">
+        <button class="qbtn" id="qb-today" onclick="setQ('today')">Today</button>
+        <button class="qbtn" id="qb-yesterday" onclick="setQ('yesterday')">Yesterday</button>
+        <button class="qbtn" id="qb-week" onclick="setQ('week')">This Week</button>
+        <button class="qbtn" id="qb-month" onclick="setQ('month')">This Month</button>
+        <div class="dfilt">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="#9ca3af" stroke-width="1.5"><rect x="1" y="2" width="12" height="11" rx="1.5"/><path d="M4 1v2M10 1v2M1 6h12"/></svg>
+          <input type="date" id="dFrom" onkeydown="if(event.key==='Enter')applyF()" onchange="clearQ()">
+          <span>—</span>
+          <input type="date" id="dTo" onkeydown="if(event.key==='Enter')applyF()" onchange="clearQ()">
+          <button onclick="applyF()">Go</button>
+        </div>
+        <div class="tbtn primary" onclick="go('upload')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Upload Files</div>
+        <input type="file" id="mainXL" class="xinp" accept=".xlsx,.xls,.csv" multiple>
+        <input type="file" id="agXL" class="xinp" accept=".xlsx,.xls,.csv" multiple>
+        <input type="file" id="abXL" class="xinp" accept=".xlsx,.xls,.csv" multiple>
+        <div class="tbtn danger" id="clrBtn" style="display:none" onclick="clearAll()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l10 10M12 2L2 12"/></svg>Clear</div>
+        <div class="tbtn" onclick="openApiMov()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="7" r="3"/><path d="M8 5.5H13M11 4v3"/></svg>API</div>
+      </div>
+    </div>
+
+    <!-- CHANNEL FILTER BAR -->
+    <div class="cfbar" id="cfbar">
+      <span class="fbar-lbl">Channel:</span>
+      <div id="chanFiltBtns" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+    </div>
+
+    <!-- UPLOAD PAGE -->
+    <div class="page content" id="page-upload">
+      <div style="max-width:820px;margin:0 auto">
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">Upload Your Files</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Each section accepts multiple files — they will be merged automatically.</div>
+
+        <!-- BOT FILES -->
+        <div class="card" style="margin-bottom:14px;border-left:4px solid var(--green)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:44px;height:44px;background:var(--gl);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="1.5"><rect x="1" y="7" width="22" height="14" rx="2.5"/><path d="M8 7V5a4 4 0 018 0v2"/><circle cx="8.5" cy="14" r="1.5" fill="#1D9E75" stroke="none"/><circle cx="15.5" cy="14" r="1.5" fill="#1D9E75" stroke="none"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--text)">1️⃣ Bot Excel <span style="font-size:11px;color:var(--green);font-weight:600">● Bot-only conversations</span></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Chat History without Assignee · Multiple files OK · Shows in Dashboard + Bots page</div>
+              <div id="botFileList" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">
+              <label class="btn purple" for="mainXL" style="background:var(--green);border-color:var(--green)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Add Bot File</label>
+              <div class="btn danger sm" id="clrBotBtn" onclick="clearBotFiles()" style="display:none;font-size:10px;padding:4px 8px">✕ Clear Bot Files</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENT FILES -->
+        <div class="card" style="margin-bottom:14px;border-left:4px solid var(--blue)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:44px;height:44px;background:var(--bluel);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--text)">2️⃣ Agent Excel <span style="font-size:11px;color:var(--blue);font-weight:600">● Human agent conversations</span></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Chat History Report with Assignee column · Multiple files OK · Shows in Agents · IRT/FRT/AHT</div>
+              <div id="agFileList" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">
+              <label class="btn purple" for="agXL"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Add Agent File</label>
+              <div class="btn danger sm" id="clrAgBtn" onclick="clearAgFiles()" style="display:none;font-size:10px;padding:4px 8px">✕ Clear Agent Files</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABANDONED FILES -->
+        <div class="card" style="margin-bottom:20px;border-left:4px solid var(--red)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:44px;height:44px;background:var(--redl);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" stroke-width="1.5"><path d="M8 3v5l3 2"/><circle cx="8" cy="8" r="6.5"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--text)">3️⃣ Abandoned Chat Excel <span style="font-size:11px;color:var(--red);font-weight:600">● Missed / Drop chats</span></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Drop.csv / Derop.csv · Multiple files OK · Shows in Abandoned Chat page</div>
+              <div id="abFileList" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">
+              <label class="btn danger" for="abXL" style="cursor:pointer"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Add Abandoned File</label>
+              <div class="btn danger sm" id="clrAbBtn" onclick="clearAbFiles()" style="display:none;font-size:10px;padding:4px 8px">✕ Clear Abandoned</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <div id="uploadStatus" class="card" style="border-left:4px solid var(--amber);display:none">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px">Upload Status</div>
+          <div id="uploadStatusRows"></div>
+          <div style="margin-top:14px">
+            <div class="btn purple" onclick="go('dashboard')" style="display:inline-flex">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="7" y="1" width="6" height="6" rx="1"/><rect x="1" y="7" width="6" height="6" rx="1"/><rect x="7" y="7" width="6" height="6" rx="1"/></svg>
+              Go to Dashboard
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNS GUIDE -->
+        <div class="card" style="margin-top:14px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px">Expected columns (same structure for Bot & Agent files)</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Assignee</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">Agent name (empty = bot)</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Department</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">B2B & NOC auto-excluded</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Channel</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">WhatsApp, Instagram…</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>IRT / FRT</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">HH:MM:SS format</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Session Started</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">For date filter + AHT</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Session Ended</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">AHT = End − Start</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>Tags</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">Chat topic label</div></div>
+            <div style="padding:7px 10px;background:var(--bg);border-radius:var(--rs);font-size:11px"><strong>language / prePostPaid</strong><div style="color:var(--faint);font-size:10px;margin-top:2px">ar/en, PRE/POST</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HANDOVER PAGE -->
+    <div class="page content" id="page-handover">
+      <div id="hov-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M8 3v10"/><circle cx="8" cy="8" r="6.5"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No data</div><div style="font-size:12px;color:var(--muted)">Upload Bot + Agent files to generate report</div></div>
+      <div id="hov-content" style="display:none">
+        <!-- Header -->
+        <div class="hov-header">
+          <div>
+            <div class="hov-title">📋 eChannels Daily Handover Report</div>
+            <div class="hov-date" id="hovDate">—</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="font-size:11px;opacity:.7;text-align:right">
+              <div>Shift 1: 00:00 – 08:00</div>
+              <div>Shift 2: 08:00 – 16:00</div>
+              <div>Shift 3: 16:00 – 00:00</div>
+            </div>
+            <div class="hov-print" onclick="window.print()">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>Print / Save PDF
+            </div>
+          </div>
+        </div>
+        <!-- Report table -->
+        <div id="hovTable"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page content" id="page-dashboard">
+      <div id="d-empty" style="text-align:center;padding:60px 20px">
+        <div style="width:52px;height:52px;background:#f5f0f7;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B1F7C" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px">Upload your files to get started</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Bot Excel + Agent Excel + Abandoned Excel (optional)</div>
+        <div class="btn purple" onclick="go('upload')" style="display:inline-flex;gap:6px;font-size:13px;padding:10px 20px">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>
+          Go to Upload Files
+        </div>
+      </div>
+      <div id="d-content" style="display:none">
+        <!-- KPI row: Total | Bot | Abandoned | Wait | IRT | FRT | AHT | Agents -->
+        <div class="kg8" id="mainKpis"></div>
+        <!-- Dept filter chips -->
+        <div id="dDeptF" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;align-items:center"></div>
+        <!-- Row 1: Language + PrePostPaid + SLA -->
+        <div class="g3">
+          <div class="card"><div class="chdr"><div><div class="ct">By Language</div><div class="cs">ar = Arabic · en = English</div></div></div><div class="cw" style="height:160px"><canvas id="langChart" role="img" aria-label="Language">Language data</canvas></div></div>
+          <div class="card"><div class="chdr"><div><div class="ct">Pre vs Post Paid</div><div class="cs">prePostPaid column</div></div></div><div class="cw" style="height:160px"><canvas id="ppChart" role="img" aria-label="PrePost">PrePost data</canvas></div></div>
+          <div class="card"><div class="chdr"><div><div class="ct">Social Media SLA</div><div class="cs">Click to view details</div></div></div><div class="sla-grid" id="slaGrid"></div></div>
+        </div>
+        <!-- Hourly traffic (was Daily Trend) -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="chdr">
+            <div><div class="ct">Hourly Traffic</div><div class="cs" id="hourLbl">By hour of day</div></div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap" id="hourChanSel"></div>
+          </div>
+          <div class="cw" style="height:155px"><canvas id="hourChart" role="img" aria-label="Hourly">Hourly</canvas></div>
+        </div>
+        <!-- Row 3: Ended by + Dept -->
+        <div class="g2" style="margin-bottom:10px">
+          <div class="card"><div class="chdr"><div class="ct">Top Tags</div><div class="cs">Most common conversation topics</div></div><div id="dashTagBars"></div></div>
+          <div class="card"><div class="chdr"><div class="ct">Department Distribution</div></div><div id="deptBars"></div></div>
+        </div>
+        <!-- Agent table on dashboard -->
+        <div class="card" id="dashAgCard">
+          <div class="chdr"><div><div class="ct">Agent Summary</div><div class="cs">Conversations · IRT · FRT · AHT · Wait per agent</div></div></div>
+          <div style="overflow-x:auto;max-height:300px"><table class="atbl" id="dashAgTbl"></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTS PAGE -->
+    <div class="page content" id="page-bots">
+      <div id="b-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="7" width="22" height="14" rx="2.5"/><path d="M8 7V5a4 4 0 018 0v2"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No Bot data</div><div style="font-size:12px;color:var(--muted)">Upload a file — Bot = Human Handover NO</div></div>
+      <div id="b-content" style="display:none">
+        <!-- Bot KPIs -->
+        <div class="kg4" id="bKpis"></div>
+        <!-- Bot Overview metrics -->
+        <div class="g3" style="margin-bottom:12px">
+          <div class="card"><div class="chdr"><div class="ct">By Language</div><div class="cs">ar · en · other</div></div><div class="cw" style="height:160px"><canvas id="bLangC" role="img" aria-label="Bot language">Bot lang</canvas></div></div>
+          <div class="card"><div class="chdr"><div class="ct">Pre vs Post Paid</div><div class="cs">PREP · POST · Non-STC (empty)</div></div><div class="cw" style="height:160px"><canvas id="bPPC" role="img" aria-label="Bot prepost">Bot PP</canvas></div></div>
+          <div class="card"><div class="chdr"><div class="ct">By Channel</div></div><div id="bChanBars"></div></div>
+        </div>
+        <!-- Session Duration + Dept bars -->
+        <div class="g2" style="margin-bottom:12px">
+          <div class="card"><div class="chdr"><div class="ct">Avg Session Duration by Dept</div><div class="cs">HH:MM:SS</div></div><div id="bDeptDurBars"></div></div>
+          <div class="card"><div class="chdr"><div class="ct">Bot Volume by Department</div></div><div id="botBarC"></div></div>
+        </div>
+        <!-- Bot dept cards -->
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">Department Cards</div>
+        <div class="bgrid" id="botCards"></div>
+        <!-- Last Session Conversations search -->
+        <div class="card">
+          <div class="chdr"><div><div class="ct">Last Session Conversations Search</div><div class="cs">Search by phone number or keyword in conversation history</div></div></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <div class="sbar" style="flex:1"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M14 14l-3.5-3.5"/></svg><input type="text" id="botSrcI" placeholder="Search phone, keyword in Last Session Conversations…" oninput="doBotSearch()"></div>
+            <div class="btn" onclick="clearBotSearch()">Clear</div>
+          </div>
+          <div id="botSrcRes" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOCIAL MEDIA PAGE -->
+    <div class="page content" id="page-social">
+      <div id="sm-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="12" r="3"/><circle cx="20" cy="5" r="3"/><circle cx="20" cy="19" r="3"/><path d="M7 10.7l10-4.4M7 13.3l10 4.4"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No Social Media data</div><div style="font-size:12px;color:var(--muted)">Upload Agent Excel with social media channels</div></div>
+      <div id="sm-content" style="display:none">
+        <div class="kg4" id="smKpis"></div>
+        <!-- Channel totals + FRT per channel -->
+        <div class="g2">
+          <div class="card"><div class="chdr"><div><div class="ct">🔓 Public — Total Conversations</div><div class="cs">Instagram Comments · Facebook Comments + others</div></div></div><div id="smPubBars"></div></div>
+          <div class="card"><div class="chdr"><div><div class="ct">🔒 Private — Total Conversations</div><div class="cs">Instagram DM · Messenger</div></div></div><div id="smPriBars"></div></div>
+        </div>
+        <div class="card" style="margin-bottom:10px"><div class="chdr"><div><div class="ct">FRT by Social Channel</div><div class="cs">Avg First Response Time — green &lt;3min · amber &lt;8min · red &gt;8min</div></div></div><div id="smFrtBars"></div></div>
+        <!-- Social Media Agents table -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="chdr"><div><div class="ct">Social Media Agents</div><div class="cs" id="smAgCnt">Agents handling social media channels</div></div></div>
+          <div style="overflow-x:auto;max-height:350px"><table class="atbl" id="smAgTable"></table></div>
+        </div>
+        <div class="card"><div class="chdr"><div class="ct">Social Media Data</div><div style="font-size:11px;color:var(--faint)" id="smCnt"></div></div><div style="overflow-x:auto;max-height:300px"><table class="atbl" id="smTable"></table></div></div>
+      </div>
+    </div>
+
+    <!-- ABANDONED PAGE -->
+    <div class="page content" id="page-abandoned">
+      <div class="ab-up">
+        <div class="ab-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B1F7C" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700">Upload Abandoned / Drop Chat File</div><div style="font-size:11px;color:var(--muted);margin-top:2px">e.g. Drop.csv · Derop.csv</div><div id="abFname" style="font-size:11px;color:var(--p);margin-top:3px;display:none"></div></div>
+        <label class="btn purple" for="abXL"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Choose File</label>
+        <input type="file" id="abXL" class="xinp" accept=".xlsx,.xls,.csv">
+      </div>
+      <div id="ab-empty" class="empty2" style="padding:20px"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v5l3 2"/><circle cx="8" cy="8" r="6.5"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No abandoned data</div><div style="font-size:11px;color:var(--muted)">Upload the abandoned chat file above</div></div>
+      <div id="ab-content" style="display:none">
+        <div class="kg4" id="abKpis"></div>
+        <div class="g2">
+          <div class="card"><div class="chdr"><div class="ct">By Channel</div></div><div class="cw" style="height:170px"><canvas id="abChanC" role="img" aria-label="AB channels">AB channels</canvas></div></div>
+          <div class="card"><div class="chdr"><div class="ct">By Language</div><div class="cs">ar = Arabic · en = English</div></div><div class="cw" style="height:170px"><canvas id="abLangC" role="img" aria-label="AB language">AB lang</canvas></div></div>
+        </div>
+        <div class="g3">
+          <div class="card"><div class="chdr"><div class="ct">Daily Trend</div><div class="cs">From Chat Request Time</div></div><div class="cw" style="height:150px"><canvas id="abTrendC" role="img" aria-label="AB trend">AB trend</canvas></div></div>
+          <div class="card"><div class="chdr"><div class="ct">Hourly Drop</div><div class="cs">Peak hours for abandoned chats</div></div><div class="cw" style="height:150px"><canvas id="abHourC" role="img" aria-label="AB hourly">AB hourly</canvas></div></div>
+          <div class="card"><div class="chdr"><div class="ct">Pre vs Post Paid</div></div><div class="cw" style="height:150px"><canvas id="abPPC" role="img" aria-label="AB prepaid">AB prepaid</canvas></div></div>
+        </div>
+        <div class="card"><div class="chdr"><div class="ct">Abandoned Data</div><div style="font-size:11px;color:var(--faint)" id="abRCnt"></div></div><div style="overflow:auto;max-height:380px"><table class="atbl" id="abTable"></table></div></div>
+      </div>
+    </div>
+
+    <!-- AGENTS PAGE -->
+    <div class="page content" id="page-agents">
+      <div id="ag-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No data</div></div>
+      <div id="ag-content" style="display:none"></div>
+    </div>
+
+    <!-- SPEED PAGE -->
+    <div class="page content" id="page-speed">
+      <div id="sp-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></div><div style="font-size:14px;font-weight:700">No data</div></div>
+      <div id="sp-content" style="display:none">
+        <div class="kg4" id="spKpis"></div>
+        <div class="g3">
+          <div class="card"><div class="chdr"><div class="ct">IRT by Channel</div></div><div id="irtBars"></div></div>
+          <div class="card"><div class="chdr"><div class="ct">FRT by Channel</div></div><div id="frtBars"></div></div>
+          <div class="card"><div class="chdr"><div class="ct">AHT by Channel</div></div><div id="ahtBars"></div></div>
+        </div>
+        <div class="card"><div class="chdr"><div class="ct">Speed Comparison</div></div><div class="cw" style="height:200px"><canvas id="speedC" role="img" aria-label="Speed">Speed</canvas></div></div>
+      </div>
+    </div>
+
+    <!-- TAGS PAGE -->
+    <div class="page content" id="page-tags">
+      <div id="tg-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h8l9 9-8 8-9-9V3z"/></svg></div><div style="font-size:14px;font-weight:700">No data</div></div>
+      <div id="tg-content" style="display:none">
+        <div class="card" style="margin-bottom:10px">
+          <div class="chdr"><div><div class="ct">Top 10 Tags</div><div class="cs">Most common conversation topics</div></div></div>
+          <div id="tagBars"></div>
+        </div>
+        <div class="card"><div class="chdr"><div class="ct">All Tags</div></div><div class="twrap" id="allTags" style="margin-top:4px"></div></div>
+      </div>
+    </div>
+
+    <!-- SEARCH PAGE -->
+    <div class="page content" id="page-search">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;gap:7px"><div class="sbar"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><path d="M14 14l-3.5-3.5"/></svg><input type="text" id="srcI" placeholder="Search by phone, name, ID or keyword…" oninput="doSearch()"></div><div class="btn" onclick="clearSrc()">Clear</div></div>
+        <div style="margin-top:6px;font-size:10px;color:var(--faint)">Searches all columns · grouped by customer</div></div>
+      <div id="srcRes"></div>
+      <div id="srcEmp" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div><div style="font-size:14px;font-weight:700">Search your data</div></div>
+    </div>
+
+    <!-- BOT CHAT PAGE -->
+    <div class="page" id="page-bot" style="height:calc(100vh - 54px)">
+      <div style="padding:14px 18px 0"><div style="font-size:13px;font-weight:700">Excel Bot</div><div style="font-size:10px;color:var(--muted)">Claude AI · STC Kuwait eChannel</div></div>
+      <div class="content" style="padding-top:9px">
+        <div class="cwrap">
+          <div class="cbox">
+            <div class="chd"><div class="bav"><svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.5"><rect x="1" y="5" width="16" height="11" rx="2"/><path d="M6 5V3a3 3 0 016 0v2"/><circle cx="6.5" cy="11" r="1" fill="white" stroke="none"/><circle cx="11.5" cy="11" r="1" fill="white" stroke="none"/></svg></div>
+              <div><div style="font-size:12px;font-weight:700">eChannel Bot</div><div style="font-size:9px;color:var(--faint)">Claude AI</div></div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:4px;font-size:9px;color:var(--faint)"><div style="width:5px;height:5px;border-radius:50%;background:var(--green)"></div>Online</div></div>
+            <div class="cmsgs" id="chatMsgs"><div class="msg ai"><div class="mbbl">👋 Upload your Excel and ask me anything about STC Kuwait eChannel data.</div><div class="mtime">Now</div></div></div>
+            <div class="cfoot"><textarea class="cinp" id="chatI" rows="1" placeholder="Ask…" onkeydown="handleKey(event)"></textarea>
+              <button class="xsbtn" id="sndBtn" onclick="sendMsg()"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><path d="M14 2L2 6l5 3 3 5 4-12z"/></svg></button></div></div>
+          <div>
+            <div class="scard2"><div class="shdr">Suggested questions</div>
+              <div style="padding:5px">
+                <div class="sitem" onclick="fillQ(this)">Total conversations by channel?</div>
+                <div class="sitem" onclick="fillQ(this)">Top agents by conversation count?</div>
+                <div class="sitem" onclick="fillQ(this)">Average IRT and FRT breakdown?</div>
+                <div class="sitem" onclick="fillQ(this)">Peak hours for customer contact?</div>
+                <div class="sitem" onclick="fillQ(this)">How many Arabic vs English?</div>
+                <div class="sitem" onclick="fillQ(this)">Key insights in 5 bullet points.</div></div></div>
+            <div class="card" id="snapCard" style="margin-top:9px;display:none">
+              <div style="font-size:11px;font-weight:700;margin-bottom:8px">Snapshot</div>
+              <div id="snapR"></div></div></div></div></div></div>
+
+    <!-- RAW DATA PAGE -->
+    <div class="page content" id="page-data">
+      <div id="rd-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6M9 16h6M9 8h6"/></svg></div><div style="font-size:14px;font-weight:700">No data</div></div>
+      <div id="rd-content" style="display:none">
+        <div class="card"><div class="chdr"><div class="ct">Raw Data</div><div style="font-size:10px;color:var(--faint)" id="rdCnt"></div></div>
+          <div style="overflow:auto;max-height:600px"><table class="atbl" id="rdTable"></table></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══ CONSTANTS ═════════════════════════════════════════════════════════
+const EXCL_DEPTS=/(b2b|noc)/i;
+const SOCIAL_PUBLIC=['Instagram Comments','Facebook Comments','Google Map Comments','Youtube Comments','Google Playstore Review','App Store Review'];
+const SOCIAL_PRIVATE=['Instagram DM','Messenger','Social media','Social Media Facebook DM'];
+const SOCIAL_ALL=[...SOCIAL_PUBLIC,...SOCIAL_PRIVATE];
+const BC=['#6B1F7C','#1D9E75','#378ADD','#D85A30','#D4537E','#BA7517','#639922','#E24B4A','#185FA5','#0F6E56','#7F77DD','#C84DB5'];
+const TS=[{bg:'#EEEDFE',t:'#3C3489'},{bg:'#E1F5EE',t:'#085041'},{bg:'#E6F1FB',t:'#0C447C'},{bg:'#FAECE7',t:'#712B13'},{bg:'#FBEAF0',t:'#72243E'},{bg:'#FAEEDA',t:'#633806'},{bg:'#EAF3DE',t:'#27500A'},{bg:'#FCEBEB',t:'#791F1F'}];
+
+// ══ AUTH ══════════════════════════════════════════════════════════════
+const AUTH={
+  users:JSON.parse(localStorage.getItem('eck_u')||'null')||[{name:'Admin User',username:'admin',password:'admin@123'}],
+  ap:localStorage.getItem('eck_ap')||'admin123',current:null,
+  save(){localStorage.setItem('eck_u',JSON.stringify(this.users))}
+};
+function doLogin(){
+  const u=document.getElementById('lemail').value.trim().replace(/@stc\.com\.kw$/i,'').toLowerCase();
+  const p=document.getElementById('lpass').value;
+  const usr=AUTH.users.find(x=>x.username.toLowerCase()===u&&x.password===p);
+  if(!usr){showLE('Invalid username or password');return;}
+  AUTH.current=usr;
+  document.getElementById('LS').style.display='none';
+  document.getElementById('AS').style.display='block';
+  document.getElementById('ucNm').textContent=usr.name;
+  document.getElementById('ucAv').textContent=usr.name[0].toUpperCase();
+  document.getElementById('lemail').value='';document.getElementById('lpass').value='';
+  loadSaved();
+}
+function doLogout(){AUTH.current=null;document.getElementById('AS').style.display='none';document.getElementById('LS').style.display='flex';}
+function showLE(m){const e=document.getElementById('lerr');document.getElementById('lerrmsg').textContent=m;e.style.display='flex';}
+function clearLE(){document.getElementById('lerr').style.display='none';}
+function toggleEye(){const i=document.getElementById('lpass');i.type=i.type==='password'?'text':'password';}
+function openAdmin(){document.getElementById('adAuth').style.display='block';document.getElementById('adMng').style.display='none';document.getElementById('adminMov').classList.add('open');}
+function closeAdmin(){document.getElementById('adminMov').classList.remove('open');}
+function verifyAd(){if(document.getElementById('adPInp').value!==AUTH.ap){document.getElementById('adPerr').style.display='block';return;}document.getElementById('adAuth').style.display='none';document.getElementById('adMng').style.display='block';renderUsrs();}
+function renderUsrs(){document.getElementById('usrList').innerHTML=AUTH.users.map((u,i)=>`<div class="urow"><div class="uav">${u.name[0].toUpperCase()}</div><div class="uinfo"><div class="unm">${u.name}</div><div class="uem">${u.username}@stc.com.kw</div></div><button class="udel" onclick="delU(${i})"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>`).join('');}
+function showAddU(){document.getElementById('addUF').style.display='block';}function hideAddU(){document.getElementById('addUF').style.display='none';}
+function addU(){const n=document.getElementById('nwN').value.trim(),u=document.getElementById('nwU').value.trim().toLowerCase().replace(/@stc\.com\.kw/i,''),p=document.getElementById('nwP').value;if(!n||!u||!p){alert('Fill all');return;}if(AUTH.users.find(x=>x.username===u)){alert('Exists');return;}AUTH.users.push({name:n,username:u,password:p});AUTH.save();renderUsrs();hideAddU();}
+function delU(i){if(!confirm('Remove '+AUTH.users[i].name+'?'))return;AUTH.users.splice(i,1);AUTH.save();renderUsrs();}
+function changeAP(){const v=document.getElementById('nwAP').value.trim();if(!v)return;AUTH.ap=v;localStorage.setItem('eck_ap',v);document.getElementById('nwAP').value='';alert('Updated!');}
+function loadUsrsExcel(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);let a=0;rows.forEach(r=>{const n=String(r.name||r.Name||'').trim(),em=String(r.email||r.Email||'').trim(),p=String(r.password||r.Password||r.pass||'').trim();if(!n||!em||!p)return;const u=em.replace(/@stc\.com\.kw/i,'').trim().toLowerCase();if(AUTH.users.find(x=>x.username===u))return;AUTH.users.push({name:n,username:u,password:p});a++;});AUTH.save();renderUsrs();alert(a+' users added.');};r.readAsArrayBuffer(f);}
+document.getElementById('adminMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdmin();});
+
+// ══ DATA STATE ════════════════════════════════════════════════════════
+const S={
+  botRaw:[],botHdrs:[],_botFiles:[],_botRawParts:[],
+  agRaw:[],agHdrs:[],_agFiles:[],_agRawParts:[],
+  raw:[],hdrs:[],filt:[],parsed:null,
+  abRaw:[],abHdrs:[],_abFiles:[],_abRawParts:[],
+  selChans:new Set(),selDepts:new Set(),
+  apiKey:localStorage.getItem('eck_key')||'',chatHist:[],charts:{}
+};
+
+// ══ UTILS ═════════════════════════════════════════════════════════════
+function col(names,hdrs){const h=(hdrs||S.hdrs).map(x=>String(x||'').toLowerCase());for(const n of names){const i=h.findIndex(x=>x.includes(n.toLowerCase()));if(i>=0)return i;}return -1;}
+function toMins(v){if(v===null||v===undefined||v===''||v==='-')return NaN;const s=String(v).trim();const m=s.match(/^(\d+):(\d+):(\d+)$/);if(m)return parseInt(m[1])*60+parseInt(m[2])+parseInt(m[3])/60;return parseFloat(s);}
+function fmtHMS(secs){if(!secs&&secs!==0||isNaN(secs))return'—';const s=Math.round(Math.abs(secs));return`${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
+function cntMap(idx,data){const m={};(data||S.filt).forEach(r=>{const v=String(r[idx]!==undefined?r[idx]:'').trim();if(v&&v!=='-'&&!EXCL_DEPTS.test(v))m[v]=(m[v]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);}
+function show(id){const e=document.getElementById(id);if(e)e.style.display='block';}
+function hide(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+function setV(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+// ── Smart date parser ─────────────────────────────────────────────────
+// Handles: "2026-05-01 11:08:35" / "5/1/2026 11:08" / "2026-05-01T11:08:35" / Excel serial
+function parseDate(v){
+  if(!v&&v!==0)return null;
+  // Excel serial number (e.g. 46000)
+  const n=Number(v);
+  if(!isNaN(n)&&n>40000&&n<60000){
+    const d=new Date(Math.round((n-25569)*86400*1000));return d;
+  }
+  const s=String(v).trim();
+  if(!s||s==='-')return null;
+  // Try direct parse
+  const d=new Date(s);
+  if(!isNaN(d))return d;
+  // Try "DD/MM/YYYY HH:MM:SS"
+  const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s*(.*)$/);
+  if(m){const d2=new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T${m[4]||'00:00:00'}`);if(!isNaN(d2))return d2;}
+  return null;
+}
+// Get YYYY-MM-DD string from date value in row
+function getDateStr(v){
+  const d=parseDate(v);
+  if(!d)return null;
+  const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  return`${y}-${mo}-${dd}`;
+}
+function getHour(v){const d=parseDate(v);return d?d.getHours():-1;}
+// Alias for backward compatibility
+function parseAbDate(v){return parseDate(v);}
+
+// ══ FILE LOADING ══════════════════════════════════════════════════════
+document.getElementById('mainXL').addEventListener('change',e=>{
+  [...e.target.files].forEach(f=>loadBotFile(f));
+  e.target.value=''; // allow re-select same file
+});
+document.getElementById('agXL').addEventListener('change',e=>{
+  [...e.target.files].forEach(f=>loadAgentFile(f));
+  e.target.value='';
+});
+document.getElementById('abXL').addEventListener('change',function(){
+  [...this.files].forEach(f=>loadAbFile(f));
+  this.value='';
+});
+
+function fileTag(name,type,onRemove){
+  const colors={bot:'var(--green)',agent:'var(--blue)',ab:'var(--red)'};
+  const c=colors[type]||'var(--p)';
+  const d=document.createElement('div');
+  d.style.cssText=`display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:${c}15;border:1px solid ${c}44;border-radius:20px;font-size:10px;font-weight:600;color:${c}`;
+  d.innerHTML=`📄 ${name} <span onclick="(${onRemove})()" style="cursor:pointer;font-size:12px;opacity:.7;margin-left:2px">✕</span>`;
+  return d;
+}
+
+function addFileTag(listId,fname,type,idx){
+  const el=document.getElementById(listId);if(!el)return;
+  const tag=fileTag(fname,type,`function(){removeFile('${type}',${idx})}`);
+  el.appendChild(tag);
+}
+function rebuildFileTags(){
+  ['botFileList','agFileList','abFileList'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
+  (S._botFiles||[]).forEach((f,i)=>addFileTag('botFileList',f,'bot',i));
+  (S._agFiles||[]).forEach((f,i)=>addFileTag('agFileList',f,'agent',i));
+  (S._abFiles||[]).forEach((f,i)=>addFileTag('abFileList',f,'ab',i));
+}
+function removeFile(type,idx){
+  if(type==='bot'){S._botFiles.splice(idx,1);S._botRawParts.splice(idx,1);S.botRaw=S._botRawParts.flat();if(!S.botRaw.length)S.botHdrs=[];}
+  else if(type==='agent'){S._agFiles.splice(idx,1);S._agRawParts.splice(idx,1);S.agRaw=S._agRawParts.flat();if(!S.agRaw.length)S.agHdrs=[];}
+  else if(type==='ab'){S._abFiles.splice(idx,1);S._abRawParts.splice(idx,1);S.abRaw=S._abRawParts.flat();if(!S.abRaw.length)S.abHdrs=[];}
+  rebuildFileTags();
+  const cb=document.getElementById(type==='bot'?'clrBotBtn':type==='agent'?'clrAgBtn':'clrAbBtn');
+  if(cb)cb.style.display=(type==='bot'?S.botRaw:type==='agent'?S.agRaw:S.abRaw).length?'flex':'none';
+  if(type==='ab'){renderAbandoned();updateUploadStatus();return;}
+  if(S.botRaw.length||S.agRaw.length)mergeAndProcess();
+  else{S.raw=[];S.hdrs=[];S.filt=[];S.parsed=null;show('d-empty');hide('d-content');}
+  updateUploadStatus();
+}
+
+function parseXL(file,cb){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'YYYY-MM-DD HH:mm:ss'});
+      if(!rows.length)return;
+      const hdrs=(rows[0]||[]).map(h=>String(h||'').trim());
+      const data=rows.slice(1).filter(r=>r.some(c=>c!==undefined&&c!==''));
+      cb(hdrs,data);
+    }catch(err){alert('Error reading file: '+err.message);}
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function loadBotFile(file){
+  parseXL(file,(hdrs,data)=>{
+    if(!S.botHdrs.length)S.botHdrs=hdrs;
+    if(!S._botFiles)S._botFiles=[];if(!S._botRawParts)S._botRawParts=[];
+    // Keep ONLY Human Handover = NO (pure bot rows)
+    const hhI=hdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('human handover'));
+    const botOnly=hhI>=0?data.filter(r=>String(r[hhI]||'').toUpperCase().trim()==='NO'):data;
+    S._botFiles.push(file.name);S._botRawParts.push(botOnly);
+    S.botRaw=[...S.botRaw,...botOnly];
+    const cb=document.getElementById('clrBotBtn');if(cb)cb.style.display='flex';
+    rebuildFileTags();mergeAndProcess();updateUploadStatus();
+  });
+}
+function loadAgentFile(file){
+  parseXL(file,(hdrs,data)=>{
+    if(!S.agHdrs.length)S.agHdrs=hdrs;
+    if(!S._agFiles)S._agFiles=[];if(!S._agRawParts)S._agRawParts=[];
+    S._agFiles.push(file.name);S._agRawParts.push(data);
+    S.agRaw=[...S.agRaw,...data];
+    const cb=document.getElementById('clrAgBtn');if(cb)cb.style.display='flex';
+    rebuildFileTags();mergeAndProcess();updateUploadStatus();
+  });
+}
+function loadAbFile(file){
+  parseXL(file,(hdrs,data)=>{
+    if(!S.abHdrs.length)S.abHdrs=hdrs;
+    if(!S._abFiles)S._abFiles=[];if(!S._abRawParts)S._abRawParts=[];
+    S._abFiles.push(file.name);S._abRawParts.push(data);
+    S.abRaw=[...S.abRaw,...data];
+    const cb=document.getElementById('clrAbBtn');if(cb)cb.style.display='flex';
+    rebuildFileTags();renderAbandoned();
+    const bd=document.getElementById('abBdg');bd.style.display='inline';bd.textContent=S.abRaw.length;
+    updateUploadStatus();
+  });
+}
+function clearBotFiles(){
+  S.botRaw=[];S.botHdrs=[];S._botFiles=[];S._botRawParts=[];
+  const cb=document.getElementById('clrBotBtn');if(cb)cb.style.display='none';
+  rebuildFileTags();S.raw=[];S.hdrs=[];S.filt=[];S.parsed=null;
+  Object.values(S.charts).forEach(c=>{try{c.destroy();}catch(e){}});S.charts={};
+  localStorage.removeItem('eck_d');show('d-empty');hide('d-content');show('b-empty');hide('b-content');
+  document.getElementById('clrBtn').style.display='none';
+  if(S.agRaw.length)mergeAndProcess();else updateUploadStatus();
+}
+function clearAgFiles(){
+  S.agRaw=[];S.agHdrs=[];S._agFiles=[];S._agRawParts=[];
+  const cb=document.getElementById('clrAgBtn');if(cb)cb.style.display='none';
+  rebuildFileTags();show('ag-empty');hide('ag-content');document.getElementById('ag-content').innerHTML='';
+  if(S.botRaw.length)mergeAndProcess();else updateUploadStatus();
+}
+function clearAbFiles(){
+  S.abRaw=[];S.abHdrs=[];S._abFiles=[];S._abRawParts=[];
+  const cb=document.getElementById('clrAbBtn');if(cb)cb.style.display='none';
+  rebuildFileTags();
+  const bd=document.getElementById('abBdg');if(bd)bd.style.display='none';
+  show('ab-empty');hide('ab-content');updateUploadStatus();
+}
+
+function mergeAndProcess(){
+  if(!S.botRaw.length&&!S.agRaw.length)return;
+  S.hdrs=S.botHdrs.length?S.botHdrs:S.agHdrs;
+  S.raw=[...S.botRaw,...S.agRaw];
+  S.filt=[...S.raw];
+  S.selChans=new Set();S.selDepts=new Set();
+  saveD();process();
+  // Stay on upload page — don't auto-navigate
+  document.getElementById('clrBtn').style.display='flex';
+  document.getElementById('upBdg').style.display='none';
+  // Show "Go to Dashboard" button prominently
+  const su=document.getElementById('uploadStatus');if(su)su.style.display='block';
+  updateUploadStatus();
+}
+
+function updateUploadStatus(){
+  const statusEl=document.getElementById('uploadStatus');
+  const rowsEl=document.getElementById('uploadStatusRows');
+  if(!statusEl)return;
+  const mk=(done,label,cnt,note)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bl);font-size:12px"><span>${done?'✅':'⏳'}</span><strong>${label}</strong><span style="color:${done?'var(--muted)':'var(--faint)'}">${done?cnt.toLocaleString()+' rows':note}</span></div>`;
+  rowsEl.innerHTML=
+    mk(S.botRaw.length,'Bot File',S.botRaw.length,'Not uploaded yet')+
+    mk(S.agRaw.length,'Agent File',S.agRaw.length,'Not uploaded yet')+
+    mk(S.abRaw.length,'Abandoned File',S.abRaw.length,'Optional — not uploaded');
+  statusEl.style.display='block';
+}
+
+// ══ PERSIST ═══════════════════════════════════════════════════════════
+function saveD(){try{const d={raw:S.raw,hdrs:S.hdrs,botRaw:S.botRaw,botHdrs:S.botHdrs,agRaw:S.agRaw,agHdrs:S.agHdrs};if(S.raw.length<8000)localStorage.setItem('eck_d',JSON.stringify(d));}catch(e){}}
+function loadSaved(){
+  try{
+    const d=JSON.parse(localStorage.getItem('eck_d')||'null');
+    if(d?.raw?.length){
+      S.raw=d.raw;S.hdrs=d.hdrs;
+      S.botRaw=d.botRaw||[];S.botHdrs=d.botHdrs||[];
+      S.agRaw=d.agRaw||[];S.agHdrs=d.agHdrs||[];
+      S.filt=[...S.raw];
+      process();
+      document.getElementById('clrBtn').style.display='flex';
+      document.getElementById('upBdg').style.display='none';
+      updateUploadStatus();
+    }
+  }catch(e){}
+}
+
+// ══ COLUMN DETECT ═════════════════════════════════════════════════════
+function detectCols(hdrs){
+  const h=hdrs||S.hdrs;
+  return{
+    agent:col(['assignee'],h),bot:col(['department','dept'],h),
+    tag:col(['tags','tag','label'],h),chan:col(['channel','platform'],h),
+    irt:col(['irt'],h),frt:col(['frt'],h),art:col(['art'],h),
+    ahtStart:col(['session started'],h),ahtEnd:col(['session ended'],h),
+    ahtDur:col(['session duration'],h),
+    wait:col(['wait time'],h),status:col(['ended by'],h),
+    date:col(['session started'],h),lang:col(['language'],h),
+    cust:col(['phone','name','customer'],h),
+    flow:col(['human handover'],h),engage:col(['message count'],h),
+    prepost:col(['prepospaid','prepostpaid'],h),
+    lsc:col(['last session conversations','last session'],h)
+  };
+}
+
+// ══ FILTERS ═══════════════════════════════════════════════════════════
+function applyF(){
+  if(!S.raw.length)return; // no data, nothing to filter
+  const from=document.getElementById('dFrom').value; // YYYY-MM-DD
+  const to=document.getElementById('dTo').value;
+  const C=S.cols;let data=[...S.raw];
+  // always exclude NOC + B2B
+  if(C&&C.bot>=0)data=data.filter(r=>!EXCL_DEPTS.test(String(r[C.bot]||'')));
+  // date filter using smart parser
+  if((from||to)&&C&&C.date>=0){
+    data=data.filter(r=>{
+      const d=getDateStr(r[C.date]);
+      if(!d)return true;
+      if(from&&d<from)return false;
+      if(to&&d>to)return false;
+      return true;
+    });
+  }
+  if(S.selChans.size>0&&C&&C.chan>=0)data=data.filter(r=>S.selChans.has(String(r[C.chan]||'').trim()));
+  if(S.selDepts.size>0&&C&&C.bot>=0)data=data.filter(r=>S.selDepts.has(String(r[C.bot]||'').trim()));
+  S.filt=data;
+  if(S.parsed||S.raw.length)recompute();
+  // Also re-render abandoned with new date filter
+  if(S.abRaw.length)renderAbandoned();
+}
+
+// ══ PROCESS ═══════════════════════════════════════════════════════════
+function process(){
+  S.cols=detectCols();
+  const C=S.cols;
+  // remove NOC + B2B
+  if(C.bot>=0)S.filt=S.filt.filter(r=>!EXCL_DEPTS.test(String(r[C.bot]||'')));
+  // set default dates from data
+  const allDates=S.raw.filter(r=>C.date>=0&&!EXCL_DEPTS.test(String(r[C.bot]||''))).map(r=>getDateStr(r[C.date])).filter(Boolean).sort();
+  if(allDates.length){
+    if(!document.getElementById('dTo').value)document.getElementById('dTo').value=allDates[allDates.length-1];
+    if(!document.getElementById('dFrom').value){const y25=allDates.find(d=>d>='2025-01-01');document.getElementById('dFrom').value=y25||allDates[0];}
+  }
+  recompute();
+  buildCFBar();
+}
+
+function computeAHT(row,C){
+  // Prefer Session Started→Session Ended diff
+  if(C.ahtStart>=0&&C.ahtEnd>=0){
+    const s=new Date(row[C.ahtStart]),e=new Date(row[C.ahtEnd]);
+    if(!isNaN(s)&&!isNaN(e)&&e>s)return(e-s)/60000;
+  }
+  return toMins(row[C.ahtDur]);
+}
+
+function recompute(){
+  // Bot cols & Agent cols separately
+  const C=S.cols;                              // merged headers (usually bot headers)
+  const CA=S.agHdrs.length?detectCols(S.agHdrs):C; // agent-specific cols
+  const data=S.filt;
+
+  // Agent rows = rows that came from agRaw (identified by having Assignee)
+  // Use S.agRaw directly filtered by current date for metric calculations
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  function dateFilter(rows,hdrs){
+    const C2=detectCols(hdrs);
+    return rows.filter(r=>{
+      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      return true;
+    });
+  }
+  const agData=S.agRaw.length?dateFilter(S.agRaw,S.agHdrs):[];
+  const botData=S.botRaw.length?dateFilter(S.botRaw,S.botHdrs):[];
+
+  // Use agData for speed metrics (IRT/FRT/AHT/Wait) — bot file doesn't have these
+  const metricData=agData.length>0?agData:[];
+
+  const byChanOf=(rows,C2,idx,useFn)=>{
+    if(idx<0&&!useFn)return{};const m={};
+    rows.forEach(r=>{const ch=C2.chan>=0?String(r[C2.chan]||'').trim():'?';const v=useFn?useFn(r,C2):toMins(r[idx]);if(!isNaN(v)&&v!==null&&v>=0){if(!m[ch])m[ch]=[];m[ch].push(v);}});
+    const o={};Object.entries(m).forEach(([k,v])=>o[k]=avg(v));return o;
+  };
+  const gAvgOf=(rows,C2,idx,useFn)=>{
+    if(!rows.length||(idx<0&&!useFn))return null;
+    const v=rows.map(r=>useFn?useFn(r,C2):toMins(r[idx])).filter(v=>!isNaN(v)&&v!==null&&v>=0);
+    return avg(v);
+  };
+
+  // Bot stats from botData
+  const botDepMap={};
+  botData.forEach(r=>{
+    if(C.bot>=0){const b=String(r[C.bot]||'').trim();if(b&&!EXCL_DEPTS.test(b))botDepMap[b]=(botDepMap[b]||0)+1;}
+  });
+  const bots=Object.entries(botDepMap).sort((a,b)=>b[1]-a[1]);
+
+  // Agent stats from agData
+  const agDepMap={};
+  agData.forEach(r=>{if(CA.agent>=0){const a=String(r[CA.agent]||'').trim();if(a)agDepMap[a]=(agDepMap[a]||0)+1;}});
+  const agents=Object.entries(agDepMap).sort((a,b)=>b[1]-a[1]);
+
+  // Tags from all data (both bot and agent can have tags)
+  const allData=[...botData,...agData];
+  const tagMap={};
+  allData.forEach(r=>{if(C.tag>=0){const t=String(r[C.tag]||'').trim();if(t&&t!=='-')tagMap[t]=(tagMap[t]||0)+1;}});
+  const tags=Object.entries(tagMap).sort((a,b)=>b[1]-a[1]);
+
+  // Channels from agent data (has social media channels)
+  const chanMap={};
+  agData.forEach(r=>{if(CA.chan>=0){const c=String(r[CA.chan]||'').trim();if(c&&!EXCL_DEPTS.test(String(r[CA.bot]||'')))chanMap[c]=(chanMap[c]||0)+1;}});
+  const chans=Object.entries(chanMap).sort((a,b)=>b[1]-a[1]);
+
+  // Language & prePostPaid from all data
+  const langMap={ar:0,en:0,other:0};
+  allData.forEach(r=>{
+    const lI=C.lang>=0?C.lang:(CA.lang>=0?CA.lang:-1);
+    if(lI>=0){const l=String(r[lI]||'').toLowerCase().trim();if(l==='ar')langMap.ar++;else if(l==='en')langMap.en++;else if(l)langMap.other++;}
+  });
+  const ppMap={pre:0,post:0,other:0};
+  allData.forEach(r=>{
+    const ppI=C.prepost>=0?C.prepost:(CA.prepost>=0?CA.prepost:-1);
+    if(ppI>=0){const v=String(r[ppI]||'').toUpperCase().trim();if(v==='POST')ppMap.post++;else if(v==='PREP'||v==='PRE')ppMap.pre++;else ppMap.other++;}
+  });
+
+  // Bot details
+  const botDet={};
+  bots.forEach(([b])=>{
+    const rows=botData.filter(r=>String(r[C.bot]||'').trim()===b);
+    const eng=C.engage>=0?avg(rows.map(r=>parseFloat(String(r[C.engage]).split('(')[0])).filter(v=>!isNaN(v))):null;
+    const durI=C.ahtDur>=0?C.ahtDur:-1;
+    const durVals=durI>=0?rows.map(r=>toMins(r[durI])).filter(v=>!isNaN(v)&&v>=0):[];
+    botDet[b]={count:rows.length,avgIrt:null,avgFrt:null,avgEng:eng,flowPct:0,avgDur:avg(durVals)};
+  });
+
+  // Social from agData
+  const socData=agData.filter(r=>CA.chan>=0&&SOCIAL_ALL.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+  const pubData=agData.filter(r=>CA.chan>=0&&SOCIAL_PUBLIC.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+  const priData=agData.filter(r=>CA.chan>=0&&SOCIAL_PRIVATE.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+
+  // Abandoned count filtered by date
+  const abDtI=S.abHdrs.length?S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date')):-1;
+  let abCnt=S.abRaw.length;
+  if(abDtI>=0&&(from||to)){
+    abCnt=S.abRaw.filter(r=>{
+      const n=Number(r[abDtI]);let d;
+      if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+      if(!d)return true;
+      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if(from&&ds<from)return false;if(to&&ds>to)return false;return true;
+    }).length;
+  }
+  const agentsInRange=agents.length;
+
+  S.parsed={bots,agents,tags,chans,langMap,ppMap,abCnt,botDet,socData,pubData,priData,agentsInRange,
+    flowPct:null,ended:[],
+    irtMap:byChanOf(metricData,CA,CA.irt),
+    frtMap:byChanOf(metricData,CA,CA.frt),
+    ahtMap:byChanOf(metricData,CA,-1,computeAHT),
+    waitMap:byChanOf(metricData,CA,CA.wait),
+    globalIrt:gAvgOf(metricData,CA,CA.irt),
+    globalFrt:gAvgOf(metricData,CA,CA.frt),
+    globalAht:gAvgOf(metricData,CA,-1,computeAHT),
+    globalWait:gAvgOf(metricData,CA,CA.wait)
+  };
+  // Also rebuild S.filt to be all data for charts/search
+  S.filt=[...botData,...agData];
+  renderAll();renderDataSnap();
+  setV('rwBdg',S.filt.length>999?Math.round(S.filt.length/1000)+'k':S.filt.length);
+  document.getElementById('rwBdg').style.display='inline';
+  document.getElementById('pgS').textContent=`Bot: ${botData.length.toLocaleString()} · Agent: ${agData.length.toLocaleString()} loaded`;
+}
+
+// ══ CHANNEL FILTER BAR ════════════════════════════════════════════════
+function buildCFBar(){
+  const C=S.cols;
+  const chans=[...new Set(S.raw.filter(r=>C.bot<0||!EXCL_DEPTS.test(String(r[C.bot]||''))).map(r=>C.chan>=0?String(r[C.chan]||'').trim():'').filter(Boolean))].sort();
+  if(!chans.length){document.getElementById('cfbar').classList.remove('show');return;}
+  document.getElementById('cfbar').classList.add('show');
+  document.getElementById('chanFiltBtns').innerHTML=
+    chans.map(c=>`<button class="fbtn${S.selChans.has(c)?' sel':''}" onclick="togChan('${c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"> ${c}</button>`).join('')+
+    (S.selChans.size?'<button class="fbtn clr" onclick="clearAllF()">✕ Clear</button>':'');
+}
+function togChan(c){c=c.trim();if(S.selChans.has(c))S.selChans.delete(c);else S.selChans.add(c);applyF();buildCFBar();}
+function clearAllF(){S.selChans=new Set();S.selDepts=new Set();applyF();buildCFBar();}
+function togDept(d){d=d.trim();if(S.selDepts.has(d))S.selDepts.delete(d);else S.selDepts.add(d);applyF();renderDashboard();}
+
+// ══ QUICK DATE ════════════════════════════════════════════════════════
+function localDate(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  return`${y}-${m}-${dd}`;
+}
+function setQ(range){
+  const now=new Date();
+  // Build today in LOCAL time
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0,0);
+  let from,to;
+  if(range==='today'){from=today;to=today;}
+  else if(range==='yesterday'){
+    const y=new Date(today);y.setDate(y.getDate()-1);from=y;to=y;
+  }
+  else if(range==='week'){
+    const w=new Date(today);w.setDate(w.getDate()-6);from=w;to=today;
+  }
+  else if(range==='month'){from=new Date(now.getFullYear(),now.getMonth(),1,0,0,0,0);to=today;}
+  document.getElementById('dFrom').value=localDate(from);
+  document.getElementById('dTo').value=localDate(to);
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('qb-'+range);if(btn)btn.classList.add('active');
+  applyF();
+}
+function clearQ(){document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));}
+
+// ══ NAVIGATION ════════════════════════════════════════════════════════
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+name+"'"))n.classList.add('active');});
+  const T={upload:'Upload Files',dashboard:'Dashboard',handover:'Handover Report',bots:'Bots',social:'Social Media',abandoned:'Abandoned Chat',agents:'Agents',speed:'IRT / FRT / AHT',tags:'Tags',search:'Search Customer',bot:'Excel Bot',data:'Raw Data'};
+  document.getElementById('pgT').textContent=T[name]||name;
+}
+
+// ══ RENDER ALL ════════════════════════════════════════════════════════
+function renderAll(){renderDashboard();renderBots();renderSocial();renderAgents();renderTags();renderSpeed();renderRawData();renderHandover();}
+
+// ══ HANDOVER REPORT ════════════════════════════════════════════════════
+function renderHandover(){
+  if(!S.botRaw.length&&!S.agRaw.length){show('hov-empty');hide('hov-content');return;}
+  hide('hov-empty');show('hov-content');
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  const dateLabel=from===to?from:(from&&to?`${from} → ${to}`:(from||to||'All dates'));
+  document.getElementById('hovDate').textContent=dateLabel;
+
+  // Shift definitions (hour ranges)
+  const SHIFTS=[
+    {label:'Shift 1',sub:'00:00 – 08:00',cls:'s1',h:[0,1,2,3,4,5,6,7]},
+    {label:'Shift 2',sub:'08:00 – 16:00',cls:'s2',h:[8,9,10,11,12,13,14,15]},
+    {label:'Shift 3',sub:'16:00 – 00:00',cls:'s3',h:[16,17,18,19,20,21,22,23]},
+    {label:'Overall',sub:'Total',cls:'total',h:null}
+  ];
+
+  // Filter data by selected date
+  const CB=S.botHdrs.length?detectCols(S.botHdrs):S.cols;
+  const CA=S.agHdrs.length?detectCols(S.agHdrs):S.cols;
+
+  function filterDate(rows,C2){
+    return rows.filter(r=>{
+      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      return true;
+    });
+  }
+  const botF=filterDate(S.botRaw,CB);
+  const agF=filterDate(S.agRaw,CA);
+
+  function byShift(rows,C2,shiftHours){
+    if(!shiftHours)return rows;
+    return rows.filter(r=>{
+      const h=C2.date>=0?getHour(r[C2.date]):-1;
+      return h>=0&&shiftHours.includes(h);
+    });
+  }
+
+  function avgHMS(rows,C2,idx){
+    if(idx<0)return'—';
+    const v=rows.map(r=>toMins(r[idx])).filter(v=>!isNaN(v)&&v>=0);
+    return v.length?fmtHMS(avg(v)*60):'—';
+  }
+
+  // ── BOT section ──────────────────────────────
+  const botRows=SHIFTS.map(s=>byShift(botF,CB,s.h));
+  const botTotals=botRows.map(r=>r.length);
+  // pre/post/nonstc
+  const ppI=CB.prepost>=0?CB.prepost:-1;
+  function ppCount(rows,type){
+    if(ppI<0)return'—';
+    if(type==='post')return rows.filter(r=>String(r[ppI]||'').toUpperCase()==='POST').length;
+    if(type==='prep')return rows.filter(r=>String(r[ppI]||'').toUpperCase()==='PREP'||String(r[ppI]||'').toUpperCase()==='PRE').length;
+    if(type==='nonstc')return rows.filter(r=>!String(r[ppI]||'').trim()).length;
+    return'—';
+  }
+  // channels for bot
+  function chanCount(rows,C2,chanName){
+    if(C2.chan<0)return'—';
+    return rows.filter(r=>String(r[C2.chan]||'').toLowerCase().includes(chanName.toLowerCase())).length;
+  }
+
+  // ── AGENT section ─────────────────────────────
+  const agRows=SHIFTS.map(s=>byShift(agF,CA,s.h));
+  const agTotals=agRows.map(r=>r.length);
+  // social channels from agent
+  const SOC_CHANS=['App Store Review','Facebook Comments','Google Map Comments','Google Playstore Review','Instagram Comments','Instagram DM','Messenger','Youtube Comments'];
+
+  // ── Helpers ───────────────────────────────────
+  function dc(v,extra=''){return`<div class="hov-dc ${extra}">${v}</div>`;}
+  function dl(v){return`<div class="hov-dl">${v}</div>`;}
+  function dataRow(label,vals,isBig=false,isTime=false){
+    return`<div class="hov-data-row">
+      ${dl(label)}
+      ${vals.map((v,i)=>{
+        const cls=(isBig?'big':'')+(isTime?' time':'')+(i===3?' tot':'');
+        return dc(v,cls);
+      }).join('')}
+    </div>`;
+  }
+  function secRow(icon,label,cls){
+    return`<div class="hov-sec-row">
+      <div class="hov-sec-cell ${cls}" style="grid-column:1/-1">${icon} ${label}</div>
+    </div>`;
+  }
+
+  // Build HTML
+  let html=`<div class="hov-table">
+    <!-- Column headers -->
+    <div class="hov-col-head">
+      <div class="hov-col-cat">Category</div>
+      <div class="hov-shift-head"><div class="hov-shift-inner s1-bg">🌙 Shift 1</div><div class="hov-shift-time s1-bg">00:00 – 08:00</div></div>
+      <div class="hov-shift-head"><div class="hov-shift-inner s2-bg">☀️ Shift 2</div><div class="hov-shift-time s2-bg">08:00 – 16:00</div></div>
+      <div class="hov-shift-head"><div class="hov-shift-inner s3-bg">🌆 Shift 3</div><div class="hov-shift-time s3-bg">16:00 – 00:00</div></div>
+      <div class="hov-shift-head"><div class="hov-shift-inner tot-bg">⭐ Overall</div><div class="hov-shift-time tot-bg">Total</div></div>
+    </div>
+
+    <!-- ═ BOT ═ -->
+    ${secRow('🤖','HANDLED BY BOT','sec-bot')}
+    ${dataRow('WhatsApp / Web',botRows.map((r,i)=>botTotals[i]),true)}
+    ${dataRow('Postpaid',botRows.map(r=>ppCount(r,'post')))}
+    ${dataRow('Prepaid',botRows.map(r=>ppCount(r,'prep')))}
+    ${dataRow('Non-STC',botRows.map(r=>ppCount(r,'nonstc')))}
+
+    <!-- ═ AGENT ═ -->
+    ${secRow('👤','HANDLED BY AGENTS','sec-agent')}
+    ${dataRow('WhatsApp / Web Chats',agRows.map((_,i)=>agTotals[i]),true)}
+    ${dataRow('Avg Wait Time',agRows.map(r=>avgHMS(r,CA,CA.wait)),false,true)}
+    ${dataRow('Avg Session Duration',agRows.map(r=>avgHMS(r,CA,CA.ahtDur>=0?CA.ahtDur:-1)),false,true)}
+    ${dataRow('Avg IRT',agRows.map(r=>avgHMS(r,CA,CA.irt)),false,true)}
+    ${dataRow('Avg FRT',agRows.map(r=>avgHMS(r,CA,CA.frt)),false,true)}
+
+    <!-- ═ SOCIAL ═ -->
+    ${secRow('📱','SOCIAL MEDIA','sec-social')}
+    ${SOC_CHANS.map(ch=>dataRow(ch,agRows.map(r=>{if(CA.chan<0)return'—';return r.filter(x=>String(x[CA.chan]||'').trim()===ch).length||0;}))).join('')}
+    ${dataRow('Total Social Chats',agRows.map(r=>{if(CA.chan<0)return'—';const sc=SOCIAL_ALL.map(s=>s.toLowerCase());return r.filter(x=>sc.includes(String(x[CA.chan]||'').trim().toLowerCase())).length;}),true)}
+    ${dataRow('Avg FRT (Social)',agRows.map(r=>{const sc=SOCIAL_ALL.map(s=>s.toLowerCase());const sr=r.filter(x=>CA.chan>=0&&sc.includes(String(x[CA.chan]||'').trim().toLowerCase()));return avgHMS(sr,CA,CA.frt);}),false,true)}
+
+    <!-- ═ SUMMARY ═ -->
+    ${secRow('📊','SUMMARY','sec-summary')}
+    ${dataRow('Non-STC',agRows.map(r=>ppCount(r,'nonstc')))}
+    ${dataRow('Postpaid',agRows.map(r=>ppCount(r,'post')))}
+    ${dataRow('Prepaid',agRows.map(r=>ppCount(r,'prep')))}
+    ${(()=>{const vals=agRows.map(r=>{const p=ppCount(r,'post');const pr=ppCount(r,'prep');const n=ppCount(r,'nonstc');return[p,pr,n].every(v=>v==='—')?'—':(p==='—'?0:p)+(pr==='—'?0:pr)+(n==='—'?0:n);});return dataRow('Total',vals,true);})()}
+    ${dataRow('Arabic',agRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='ar').length;}))}
+    ${dataRow('English',agRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='en').length;}))}
+  </div>`;
+
+  document.getElementById('hovTable').innerHTML=html;
+}
+
+// ══ DASHBOARD ═════════════════════════════════════════════════════════
+function renderDashboard(){
+  const p=S.parsed;
+  if(!p){hide('d-content');show('d-empty');return;}
+  hide('d-empty');show('d-content');
+  const C=S.cols;
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+
+  // Helper: filter raw array by date + exclude B2B/NOC
+  function filterByDate(raw,hdrs){
+    const C2=detectCols(hdrs);
+    return raw.filter(r=>{
+      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      return true;
+    });
+  }
+
+  const botFiltered = S.botRaw.length ? filterByDate(S.botRaw, S.botHdrs) : [];
+  const agFiltered  = S.agRaw.length  ? filterByDate(S.agRaw,  S.agHdrs)  : [];
+  const botConvs = botFiltered.length;
+  const agConvs  = agFiltered.length;
+
+  // Total = bot + agent (filtered)
+  const tot = botConvs + agConvs;
+  const totPct = tot > 0;
+  const botPct = totPct ? Math.round(botConvs/tot*100) : 0;
+  const agPct  = totPct ? Math.round(agConvs/tot*100)  : 0;
+
+  // Agents unique in period
+  const agInPeriod = (()=>{
+    const C2=detectCols(S.agHdrs);const ai=C2.agent>=0?C2.agent:-1;if(ai<0)return 0;
+    return new Set(agFiltered.map(r=>String(r[ai]||'').trim()).filter(Boolean)).size;
+  })();
+
+  // Social from p.socData (already filtered by agent data in recompute)
+  const socConvs=p.socData.length;
+  // Social FRT SLA using agent cols
+  const CA2=S.agHdrs.length?detectCols(S.agHdrs):C;
+  const frtThresh=5;
+  const socFrtVals=CA2.frt>=0?p.socData.map(r=>toMins(r[CA2.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  const socFrtAvg=avg(socFrtVals);
+  const socSLApct=socFrtVals.length?Math.round(socFrtVals.filter(v=>v<=frtThresh).length/socFrtVals.length*100):null;
+  const slaClr=socSLApct===null?'var(--muted)':socSLApct>=80?'var(--green)':socSLApct>=60?'var(--amber)':'var(--red)';
+
+  document.getElementById('mainKpis').innerHTML=`
+    <div class="kcard" style="border-left-color:var(--p)">
+      <div class="klbl">Total</div>
+      <div class="kval">${tot.toLocaleString()}</div>
+      <div class="ksub">Bot ${botPct}% · Ag ${agPct}%</div>
+    </div>
+    <div class="kcard kg">
+      <div class="klbl">Bot (HH=NO)</div>
+      <div class="kval">${botConvs.toLocaleString()}</div>
+      <div class="ksub">${botPct}% of total</div>
+    </div>
+    <div class="kcard kb">
+      <div class="klbl">Agent</div>
+      <div class="kval">${agConvs.toLocaleString()}</div>
+      <div class="ksub">${agPct}% of total</div>
+    </div>
+    <div class="kcard kr">
+      <div class="klbl">Abandoned</div>
+      <div class="kval">${p.abCnt||0}</div>
+      <div class="ksub">${p.abCnt?'from file':'upload file'}</div>
+    </div>
+    <div class="kcard" style="border-left-color:#7F77DD;cursor:pointer" onclick="go('social')">
+      <div class="klbl">Social Media</div>
+      <div class="kval">${socConvs.toLocaleString()}</div>
+      <div class="ksub" style="color:${slaClr}">${socFrtAvg!==null?fmtHMS(socFrtAvg*60)+' FRT':''} ${socSLApct!==null?'·'+socSLApct+'%':''}</div>
+    </div>
+    <div class="kcard kc">
+      <div class="klbl">⏳ Avg Wait</div>
+      <div class="kval">${p.globalWait!==null?fmtHMS(p.globalWait*60):'—'}</div>
+      <div class="ksub">wait time</div>
+    </div>
+    <div class="kcard ka">
+      <div class="klbl">Avg IRT</div>
+      <div class="kval">${p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'}</div>
+      <div class="ksub">initial response</div>
+    </div>
+    <div class="kcard kgr">
+      <div class="klbl">Avg AHT</div>
+      <div class="kval">${p.globalAht!==null?fmtHMS(p.globalAht*60):'—'}</div>
+      <div class="ksub">start→end</div>
+    </div>
+    <div class="kcard kg">
+      <div class="klbl">Agents</div>
+      <div class="kval">${agInPeriod}</div>
+      <div class="ksub">unique in period</div>
+    </div>`;
+  // Dept filter chips — from BOTH bot and agent files
+  const CB=S.botHdrs.length?detectCols(S.botHdrs):C;
+  const allDepts=[
+    ...S.botRaw.map(r=>CB.bot>=0?String(r[CB.bot]||'').trim():''),
+    ...S.agRaw.map(r=>CA2.bot>=0?String(r[CA2.bot]||'').trim():'')
+  ].filter(d=>d&&!EXCL_DEPTS.test(d));
+  const depts=[...new Set(allDepts)].sort();
+  const df=document.getElementById('dDeptF');
+  df.innerHTML=depts.length?`<span style="font-size:9px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-right:4px">DEPT:</span>`+
+    depts.map(d=>`<button class="fbtn${S.selDepts.has(d)?' sel':''}" onclick="togDept('${d.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}');" title="${d}">${d.length>22?d.slice(0,22)+'…':d}</button>`).join('')+
+    (S.selDepts.size?`<button class="fbtn clr" onclick="clearAllF()">✕</button>`:''): '';
+  // Language chart — only show non-zero values
+  const langVals=[['Arabic',p.langMap.ar],['English',p.langMap.en],['Other',p.langMap.other]].filter(([,v])=>v>0);
+  if(langVals.length)mkDonut('langChart',langVals.map(e=>e[0]),langVals.map(e=>e[1]),['#6B1F7C','#378ADD','#BA7517'].slice(0,langVals.length));
+  // PrePostPaid chart
+  if(p.ppMap&&(p.ppMap.pre||p.ppMap.post)){
+    mkDonut('ppChart',
+      [['POST',p.ppMap.post],['PREP',p.ppMap.pre],['Other',p.ppMap.other]].filter(([,v])=>v>0).map(e=>e[0]),
+      [['POST',p.ppMap.post],['PREP',p.ppMap.pre],['Other',p.ppMap.other]].filter(([,v])=>v>0).map(e=>e[1]),
+      ['#1D9E75','#6B1F7C','#BA7517']);
+  }
+  // SLA grid — social channels
+  renderSLAGrid(p);
+  // Hourly traffic
+  renderHourly(null);
+  const chans=[...new Set(S.filt.map(r=>C.chan>=0?String(r[C.chan]||'').trim():'').filter(Boolean))];
+  document.getElementById('hourChanSel').innerHTML='<button class="fbtn sel" onclick="renderHourly(null,this)">All</button>'+chans.slice(0,5).map(c=>`<button class="fbtn" onclick="renderHourly('${c.replace(/'/g,"\\'")}',this)">${c}</button>`).join('');
+  // Ended by + Dept bars
+  // Tags bars on dashboard — build from agent file (has Tags column)
+  const CA3=S.agHdrs.length?detectCols(S.agHdrs):C;
+  const from3=document.getElementById('dFrom').value;const to3=document.getElementById('dTo').value;
+  const agFilt3=S.agRaw.filter(r=>{
+    if(CA3.bot>=0&&EXCL_DEPTS.test(String(r[CA3.bot]||'')))return false;
+    if((from3||to3)&&CA3.date>=0){const d=getDateStr(r[CA3.date]);if(!d)return true;if(from3&&d<from3)return false;if(to3&&d>to3)return false;}
+    return true;
+  });
+  const tagMap3={};
+  if(CA3.tag>=0)agFilt3.forEach(r=>{const t=String(r[CA3.tag]||'').trim();if(t&&t!=='-')tagMap3[t]=(tagMap3[t]||0)+1;});
+  const tags3=Object.entries(tagMap3).sort((a,b)=>b[1]-a[1]);
+  if(tags3.length){
+    const tmx=tags3[0][1];
+    document.getElementById('dashTagBars').innerHTML=tags3.slice(0,8).map(([t,c],i)=>
+      `<div class="brow"><div class="blbl" title="${t}" style="min-width:130px">${t.length>18?t.slice(0,18)+'…':t}</div><div class="btrk"><div class="bfil" style="width:${Math.round(c/tmx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${c}</div></div>`
+    ).join('');
+  }else{
+    document.getElementById('dashTagBars').innerHTML='<div style="font-size:11px;color:var(--faint);padding:8px">No tags data — upload Agent file with Tags column</div>';
+  }
+  // Dept bars — combine bots (from bot file) + agent depts
+  const agDepts=p.agents.reduce((m,[a,n])=>{
+    // find dept for each agent from agData
+    const r=S.agRaw.find(r=>CA2.agent>=0&&String(r[CA2.agent]||'').trim()===a);
+    if(r&&CA2.bot>=0){const d=String(r[CA2.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d))m[d]=(m[d]||0)+n;}
+    return m;
+  },{});
+  const deptMerged={};
+  p.bots.forEach(([b,c])=>{if(!EXCL_DEPTS.test(b))deptMerged[b]=(deptMerged[b]||0)+c;});
+  Object.entries(agDepts).forEach(([d,c])=>{deptMerged[d]=(deptMerged[d]||0)+c;});
+  const deptE=Object.entries(deptMerged).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const dmax=deptE[0]?deptE[0][1]:1;
+  document.getElementById('deptBars').innerHTML=deptE.length?deptE.map(([b,c],i)=>`<div class="brow"><div class="blbl" title="${b}">${b}</div><div class="btrk"><div class="bfil" style="width:${Math.round(c/dmax*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${c}</div></div>`).join(''):'<div style="font-size:11px;color:var(--faint);padding:5px">No department data</div>';
+  // Badges
+  setV('botBdg',p.bots.length);document.getElementById('botBdg').style.display='inline';
+  setV('agBdg',p.agents.length);document.getElementById('agBdg').style.display='inline';
+  // Agent mini-table
+  renderDashAgTbl();
+}
+
+function renderSLAGrid(p){
+  const CA=S.agHdrs.length?detectCols(S.agHdrs):S.cols;
+  const frtThresh=5;
+  const pubFrt=CA.frt>=0?p.pubData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  const pubAvgFrt=avg(pubFrt);
+  const pubSLApct=pubFrt.length?Math.round(pubFrt.filter(v=>v<=frtThresh).length/pubFrt.length*100):null;
+  const pubClr=pubAvgFrt===null?'var(--muted)':pubAvgFrt<=3?'var(--green)':pubAvgFrt<=8?'var(--amber)':'var(--red)';
+  const priFrt=CA.frt>=0?p.priData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  const priAvgFrt=avg(priFrt);
+  const priSLApct=priFrt.length?Math.round(priFrt.filter(v=>v<=frtThresh).length/priFrt.length*100):null;
+  const priClr=priAvgFrt===null?'var(--muted)':priAvgFrt<=3?'var(--green)':priAvgFrt<=8?'var(--amber)':'var(--red)';
+  document.getElementById('slaGrid').innerHTML=`
+    <div class="sla-item" onclick="go('social')">
+      <div class="sla-lbl">🔓 Public</div>
+      <div class="sla-sub">Instagram Comments · Facebook Comments</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Avg FRT</div>
+      <div class="sla-val" style="color:${pubClr}">${pubAvgFrt!==null?fmtHMS(pubAvgFrt*60):'—'}</div>
+      <div class="sla-channels">${pubSLApct!==null?pubSLApct+'% within '+frtThresh+'min SLA · '+p.pubData.length+' chats':'No FRT data'}</div>
+    </div>
+    <div class="sla-item" onclick="go('social')">
+      <div class="sla-lbl">🔒 Private</div>
+      <div class="sla-sub">Instagram DM · Messenger</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Avg FRT</div>
+      <div class="sla-val" style="color:${priClr}">${priAvgFrt!==null?fmtHMS(priAvgFrt*60):'—'}</div>
+      <div class="sla-channels">${priSLApct!==null?priSLApct+'% within '+frtThresh+'min SLA · '+p.priData.length+' chats':'No FRT data'}</div>
+    </div>`;
+}
+
+function renderHourly(filterChan,btn){
+  if(btn){document.querySelectorAll('#hourChanSel .fbtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+  const C=S.cols;if(!C||C.date<0)return;
+  const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
+  const daysDiff=from&&to?Math.round((new Date(to)-new Date(from))/(1000*86400)):99;
+  const useH=daysDiff<=2;
+  let data=S.filt;
+  if(filterChan&&C.chan>=0)data=data.filter(r=>String(r[C.chan]||'').trim()===filterChan);
+  if(S.charts.hour)S.charts.hour.destroy();
+  const lbl=document.getElementById('hourLbl');
+  if(useH){
+    const hrs=new Array(24).fill(0);
+    data.forEach(r=>{const h=getHour(r[C.date]);if(h>=0)hrs[h]++;});
+    if(lbl)lbl.textContent=`Hourly breakdown${filterChan?' · '+filterChan:''}`;
+    const mx=Math.max(...hrs.filter(v=>v>0),1);
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'bar',data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets:[{data:hrs,backgroundColor:hrs.map(v=>v===mx&&v>0?'#6B1F7C':'rgba(107,31,124,.35)'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});
+  }else{
+    const d={};data.forEach(r=>{const dt=getDateStr(r[C.date]);if(dt)d[dt]=(d[dt]||0)+1;});
+    const s=Object.keys(d).sort();if(!s.length)return;
+    if(lbl)lbl.textContent=`Daily trend${filterChan?' · '+filterChan:''}`;
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'line',data:{labels:s.map(x=>x.slice(5)),datasets:[{data:s.map(x=>d[x]),borderColor:'#6B1F7C',backgroundColor:'rgba(107,31,124,.07)',borderWidth:2,pointRadius:s.length<14?3:1,fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxTicksLimit:14},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});
+  }
+}
+
+function renderDashAgTbl(){
+  const C=S.cols;if(!C)return;
+  const ui=C.agent>=0?C.agent:(C.bot>=0?C.bot:-1);
+  if(ui<0){hide('dashAgCard');return;}show('dashAgCard');
+  const agents=cntMap(ui).slice(0,30);if(!agents.length){hide('dashAgCard');return;}
+  const totalAgents=agents.length;
+  const rows=agents.map(([a,cnt])=>{
+    const ar=S.filt.filter(r=>String(r[ui]||'').trim()===a);
+    const irt=C.irt>=0?avg(ar.map(r=>toMins(r[C.irt])).filter(v=>!isNaN(v))):null;
+    const frt=C.frt>=0?avg(ar.map(r=>toMins(r[C.frt])).filter(v=>!isNaN(v))):null;
+    const aht=avg(ar.map(r=>computeAHT(r,C)).filter(v=>!isNaN(v)&&v!==null));
+    const ib=irt!==null?(irt<3?'bg':irt<8?'ba':'br'):'';
+    const fb=frt!==null?(frt<3?'bg':frt<8?'ba':'br'):'';
+    return`<tr><td><strong>${a}</strong></td><td>${cnt}</td><td>${irt!==null?`<span class="badge ${ib}">${fmtHMS(irt*60)}</span>`:'—'}</td><td>${frt!==null?`<span class="badge ${fb}">${fmtHMS(frt*60)}</span>`:'—'}</td><td>${aht?fmtHMS(aht*60):'—'}</td></tr>`;
+  }).join('');
+  document.getElementById('dashAgTbl').innerHTML=`<thead><tr><th>Agent (${totalAgents} total)</th><th>Chats</th><th>IRT</th><th>FRT</th><th>AHT</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+// ══ BOTS ══════════════════════════════════════════════════════════════
+function renderBots(){
+  // Use botRaw filtered by date
+  const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
+  const CB=detectCols(S.botHdrs);
+  let botData=S.botRaw.filter(r=>{
+    if(CB.bot>=0&&EXCL_DEPTS.test(String(r[CB.bot]||'')))return false;
+    if((from||to)&&CB.date>=0){const d=getDateStr(r[CB.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+    return true;
+  });
+  if(!botData.length){show('b-empty');hide('b-content');return;}
+  hide('b-empty');show('b-content');
+  const tot=botData.length;
+  // Dept map
+  const deptMap={};
+  if(CB.bot>=0)botData.forEach(r=>{const d=String(r[CB.bot]||'?').trim();deptMap[d]=(deptMap[d]||0)+1;});
+  const deptE=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]);
+  // Language
+  const lM={ar:0,en:0,other:0};
+  if(CB.lang>=0)botData.forEach(r=>{const l=String(r[CB.lang]||'').toLowerCase().trim();if(l==='ar')lM.ar++;else if(l==='en')lM.en++;else if(l)lM.other++;});
+  // PrePostPaid (empty = Non-STC)
+  const ppM={post:0,prep:0,nonstc:0};
+  const ppI=CB.prepost>=0?CB.prepost:-1;
+  botData.forEach(r=>{
+    const v=ppI>=0?String(r[ppI]||'').toUpperCase().trim():'';
+    if(v==='POST')ppM.post++;else if(v==='PREP'||v==='PRE')ppM.prep++;else ppM.nonstc++;
+  });
+  // Channel
+  const chM={};if(CB.chan>=0)botData.forEach(r=>{const c=String(r[CB.chan]||'?').trim();chM[c]=(chM[c]||0)+1;});
+  const chE=Object.entries(chM).sort((a,b)=>b[1]-a[1]);
+  // Session Duration avg by dept
+  const durI=CB.ahtDur>=0?CB.ahtDur:-1;
+  const deptDur={};
+  if(durI>=0)deptE.forEach(([d])=>{const vals=botData.filter(r=>String(r[CB.bot]||'').trim()===d).map(r=>toMins(r[durI])).filter(v=>!isNaN(v));if(vals.length)deptDur[d]=avg(vals);});
+  // KPIs
+  document.getElementById('bKpis').innerHTML=`
+    <div class="kcard" style="border-left-color:var(--p)"><div class="klbl">Bot Total</div><div class="kval">${tot.toLocaleString()}</div><div class="ksub">Human Handover = NO</div></div>
+    <div class="kcard kg"><div class="klbl">Departments</div><div class="kval">${deptE.length}</div><div class="ksub">active</div></div>
+    <div class="kcard ka"><div class="klbl">Arabic</div><div class="kval">${lM.ar.toLocaleString()}</div><div class="ksub">${tot?Math.round(lM.ar/tot*100):0}%</div></div>
+    <div class="kcard kb"><div class="klbl">English</div><div class="kval">${lM.en.toLocaleString()}</div><div class="ksub">${tot?Math.round(lM.en/tot*100):0}%</div></div>`;
+  // Language donut
+  const lV=[['Arabic',lM.ar],['English',lM.en],['Other',lM.other]].filter(([,v])=>v>0);
+  if(lV.length)mkDonut('bLangC',lV.map(e=>e[0]),lV.map(e=>e[1]),['#6B1F7C','#378ADD','#BA7517'].slice(0,lV.length));
+  // Pre/Post Paid donut (empty = Non-STC)
+  const ppVals=[['POST',ppM.post],['PREP',ppM.prep],['Non-STC',ppM.nonstc]].filter(([,v])=>v>0);
+  if(ppVals.length)mkDonut('bPPC',ppVals.map(e=>e[0]),ppVals.map(e=>e[1]),['#1D9E75','#6B1F7C','#BA7517']);
+  // Channel bars
+  const chmx=chE[0]?chE[0][1]:1;
+  document.getElementById('bChanBars').innerHTML=chE.slice(0,8).map(([c,n],i)=>`<div class="brow"><div class="blbl">${c}</div><div class="btrk"><div class="bfil" style="width:${Math.round(n/chmx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${n}</div></div>`).join('');
+  // Session duration by dept
+  const durE=Object.entries(deptDur).sort((a,b)=>b[1]-a[1]);
+  const durmx=durE[0]?durE[0][1]:1;
+  document.getElementById('bDeptDurBars').innerHTML=durE.length?durE.map(([d,v],i)=>`<div class="brow"><div class="blbl" title="${d}">${d.length>20?d.slice(0,20)+'…':d}</div><div class="btrk"><div class="bfil" style="width:${Math.round(v/durmx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${fmtHMS(v*60)}</div></div>`).join(''):'<div style="font-size:11px;color:var(--faint);padding:5px">No session duration data</div>';
+  // Dept volume bars
+  const dmx=deptE[0]?deptE[0][1]:1;
+  document.getElementById('botBarC').innerHTML=deptE.slice(0,10).map(([b,c],i)=>`<div class="brow"><div class="blbl" title="${b}">${b}</div><div class="btrk"><div class="bfil" style="width:${Math.round(c/dmx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${c}</div></div>`).join('');
+  // Dept cards
+  document.getElementById('botCards').innerHTML=deptE.slice(0,12).map(([b,cnt],i)=>{
+    const rows=botData.filter(r=>String(r[CB.bot]||'').trim()===b);
+    const durVals=durI>=0?rows.map(r=>toMins(r[durI])).filter(v=>!isNaN(v)):[];
+    const avgDur=avg(durVals);
+    const engI=CB.engage>=0?CB.engage:-1;
+    const engVals=engI>=0?rows.map(r=>parseFloat(String(r[engI]).split('(')[0])).filter(v=>!isNaN(v)):[];
+    const pct=Math.round(cnt/tot*100);
+    return`<div class="bcard"><div class="bchdr"><div class="bcav" style="background:${BC[i%BC.length]}18;color:${BC[i%BC.length]}">${b[0].toUpperCase()}</div><div style="flex:1;min-width:0"><div class="bcnm">${b}</div></div><span class="badge bpur">${pct}%</span></div><div class="bcst"><div class="bcs"><div class="bcsv">${cnt}</div><div class="bcsl">Chats</div></div><div class="bcs"><div class="bcsv">${avg(engVals)!=null?avg(engVals).toFixed(0):'—'}</div><div class="bcsl">Avg Msg</div></div><div class="bcs"><div class="bcsv">${avgDur?fmtHMS(avgDur*60):'—'}</div><div class="bcsl">Avg Dur</div></div></div></div>`;
+  }).join('');
+  // Store for search
+  S._botData=botData;S._botCols=CB;
+}
+
+function doBotSearch(){
+  const q=document.getElementById('botSrcI').value.trim().toLowerCase();
+  const el=document.getElementById('botSrcRes');
+  if(!q){el.innerHTML='';return;}
+  const data=S._botData||[];const CB=S._botCols||{};
+  const lscI=CB.lsc>=0?CB.lsc:-1; // Last Session Conversations
+  const lscIdx=S.botHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('last session'));
+  const custI=CB.cust>=0?CB.cust:-1;
+  const hits=data.filter(r=>{
+    // Search in phone/name and last session conversations
+    const phone=custI>=0?String(r[custI]||'').toLowerCase():'';
+    const conv=lscIdx>=0?String(r[lscIdx]||'').toLowerCase():'';
+    return phone.includes(q)||conv.includes(q)||r.some(c=>String(c||'').toLowerCase().includes(q));
+  }).slice(0,20);
+  if(!hits.length){el.innerHTML='<div style="font-size:12px;color:var(--faint);padding:8px">No results found</div>';return;}
+  const chanI=CB.chan>=0?CB.chan:-1;const deptI=CB.bot>=0?CB.bot:-1;const durI=CB.ahtDur>=0?CB.ahtDur:-1;const langI=CB.lang>=0?CB.lang:-1;const ppI2=CB.prepost>=0?CB.prepost:-1;
+  el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Found <strong>${hits.length}</strong> results</div>`+hits.map(r=>{
+    const phone=custI>=0?String(r[custI]||'—'):'—';
+    const ch=chanI>=0?String(r[chanI]||''):'';const dept=deptI>=0?String(r[deptI]||''):'';
+    const dur=durI>=0?String(r[durI]||''):'';const lang=langI>=0?String(r[langI]||'').toUpperCase():'';
+    const pp=ppI2>=0?String(r[ppI2]||'Non-STC'):'';
+    const conv=lscIdx>=0?String(r[lscIdx]||'').slice(0,300):'';
+    return`<div style="background:var(--bg);border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;font-size:11px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <strong style="color:var(--text)">${phone}</strong>
+        ${ch?`<span class="badge bpur">${ch}</span>`:''}
+        ${dept?`<span class="badge bb">${dept}</span>`:''}
+        ${lang?`<span class="badge bg">${lang}</span>`:''}
+        ${pp?`<span class="badge ba">${pp||'Non-STC'}</span>`:''}
+        ${dur?`<span style="color:var(--muted)">⏱ ${dur}</span>`:''}
+      </div>
+      ${conv?`<div style="color:var(--muted);font-size:10px;line-height:1.5;white-space:pre-wrap;background:white;padding:7px 9px;border-radius:5px;border:1px solid var(--bl)">${conv}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function clearBotSearch(){document.getElementById('botSrcI').value='';document.getElementById('botSrcRes').innerHTML='';}
+
+// ══ SOCIAL MEDIA ══════════════════════════════════════════════════════
+function renderSocial(){
+  const p=S.parsed;if(!p||!p.socData.length){show('sm-empty');hide('sm-content');return;}
+  hide('sm-empty');show('sm-content');
+  const C=S.cols;const soc=p.socData;const pub=p.pubData;const pri=p.priData;
+  // Avg FRT for social
+  const socFrtVals=C.frt>=0?soc.map(r=>toMins(r[C.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  const socAvgFrt=avg(socFrtVals);
+  document.getElementById('smKpis').innerHTML=`
+    <div class="kcard"><div class="klbl">Social Total</div><div class="kval">${soc.length.toLocaleString()}</div><div class="ksub">all social channels</div></div>
+    <div class="kcard kg"><div class="klbl">🔓 Public</div><div class="kval">${pub.length.toLocaleString()}</div><div class="ksub">Comments</div></div>
+    <div class="kcard kb"><div class="klbl">🔒 Private</div><div class="kval">${pri.length.toLocaleString()}</div><div class="ksub">DM + Messenger</div></div>
+    <div class="kcard ka"><div class="klbl">Avg FRT</div><div class="kval" style="font-size:16px">${socAvgFrt!==null?fmtHMS(socAvgFrt*60):'—'}</div><div class="ksub">social media</div></div>`;
+
+  // Channel breakdown bars
+  const mkChanBars=(data,elId)=>{
+    const m={};data.forEach(r=>{const c=String(r[C.chan]||'?').trim();m[c]=(m[c]||0)+1;});
+    const e=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+    const mx=e[0]?e[0][1]:1;
+    document.getElementById(elId).innerHTML=e.map(([ch,cnt],i)=>
+      `<div class="brow"><div class="blbl">${ch}</div><div class="btrk"><div class="bfil" style="width:${Math.round(cnt/mx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${cnt}</div></div>`
+    ).join('')||'<div style="font-size:11px;color:var(--faint);padding:6px">No data</div>';
+  };
+  mkChanBars(pub,'smPubBars');
+  mkChanBars(pri,'smPriBars');
+
+  // FRT by each social channel (sorted best to worst)
+  if(C.frt>=0){
+    const socChans=[...new Set(soc.map(r=>String(r[C.chan]||'?').trim()))];
+    const frtBySoc={};socChans.forEach(ch=>{
+      const vals=soc.filter(r=>String(r[C.chan]||'').trim()===ch).map(r=>toMins(r[C.frt])).filter(v=>!isNaN(v)&&v>=0);
+      if(vals.length)frtBySoc[ch]=avg(vals);
+    });
+    const frtE=Object.entries(frtBySoc).sort((a,b)=>a[1]-b[1]);
+    const frtMx=Math.max(...frtE.map(e=>e[1]),1);
+    document.getElementById('smFrtBars').innerHTML=frtE.map(([ch,v])=>{
+      const cl=v<3?'#1D9E75':v<8?'#BA7517':'#E24B4A';
+      const cnt=soc.filter(r=>String(r[C.chan]||'').trim()===ch).length;
+      return`<div class="brow">
+        <div class="blbl">${ch}</div>
+        <div class="btrk"><div class="bfil" style="width:${Math.round(v/frtMx*100)}%;background:${cl}"></div></div>
+        <div class="bval" style="color:${cl}">${fmtHMS(v*60)}</div>
+        <div style="font-size:10px;color:var(--faint);min-width:44px;text-align:right">${cnt} chats</div>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('smFrtBars').innerHTML='<div style="font-size:11px;color:var(--faint);padding:6px">No FRT column found</div>';
+  }
+
+  // Social Media Agents table
+  if(C.agent>=0){
+    const smAgents={};
+    soc.forEach(r=>{
+      const a=String(r[C.agent]||'').trim();if(!a)return;
+      const ch=String(r[C.chan]||'?').trim();
+      if(!smAgents[a])smAgents[a]={chans:new Set(),cnt:0,frtVals:[]};
+      smAgents[a].chans.add(ch);smAgents[a].cnt++;
+      if(C.frt>=0){const f=toMins(r[C.frt]);if(!isNaN(f)&&f>=0)smAgents[a].frtVals.push(f);}
+    });
+    const agList=Object.entries(smAgents).sort((a,b)=>b[1].cnt-a[1].cnt);
+    setV('smAgCnt',`${agList.length} agents handling social media channels`);
+    document.getElementById('smAgTable').innerHTML=`
+      <thead><tr><th>Agent</th><th>Conversations</th><th>Avg FRT</th><th>Channels</th></tr></thead>
+      <tbody>${agList.map(([a,d])=>{
+        const f=avg(d.frtVals);const fb=f!==null?(f<3?'bg':f<8?'ba':'br'):'';
+        return`<tr><td><strong>${a}</strong></td><td>${d.cnt}</td><td>${f!==null?`<span class="badge ${fb}">${fmtHMS(f*60)}</span>`:'—'}</td><td style="font-size:10px;color:var(--muted)">${[...d.chans].join(', ')}</td></tr>`;
+      }).join('')}</tbody>`;
+  } else {
+    document.getElementById('smAgTable').innerHTML='<tbody><tr><td colspan="4" style="text-align:center;color:var(--faint);padding:12px">No Assignee column found</td></tr></tbody>';
+  }
+
+  // Raw data table
+  const smCols=S.hdrs.slice(0,10);
+  setV('smCnt',soc.length.toLocaleString()+' rows');
+  document.getElementById('smTable').innerHTML=`<thead><tr>${smCols.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${soc.slice(0,200).map(r=>`<tr>${smCols.map((_,i)=>`<td>${String(r[i]!==undefined?r[i]:'').slice(0,40)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+
+// ══ ABANDONED ═════════════════════════════════════════════════════════
+function renderAbandoned(){
+  if(!S.abRaw.length){show('ab-empty');hide('ab-content');return;}
+  hide('ab-empty');show('ab-content');
+  const h=S.abHdrs;
+  const cI=col(['channel','platform'],h),dI=col(['department'],h),dtI=col(['chat request time','date'],h),langI=col(['language'],h),ppI=col(['prepospaid','prepostpaid'],h),nmI=col(['name'],h),phI=col(['phone'],h);
+  // Apply date filter from topbar to abandoned data using Chat Request Time
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  let data=S.abRaw.filter(r=>!EXCL_DEPTS.test(String(r[dI>=0?dI:0]||'')));
+  if((from||to)&&dtI>=0){
+    data=data.filter(r=>{
+      const n=Number(r[dtI]);
+      let d;
+      if(!isNaN(n)&&n>1e12)d=new Date(n);
+      else d=parseDate(r[dtI]);
+      if(!d)return true;
+      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if(from&&ds<from)return false;
+      if(to&&ds>to)return false;
+      return true;
+    });
+  }
+  const tot=data.length;
+  const byC={};if(cI>=0)data.forEach(r=>{const c=String(r[cI]||'?').trim();byC[c]=(byC[c]||0)+1;});
+  const byL={ar:0,en:0,other:0};
+  if(langI>=0)data.forEach(r=>{const l=String(r[langI]||'').toLowerCase().trim();if(l==='ar')byL.ar++;else if(l==='en')byL.en++;else if(l)byL.other++;});
+  const byPP={pre:0,post:0,other:0};
+  if(ppI>=0)data.forEach(r=>{const v=String(r[ppI]||'').toUpperCase().trim();if(v==='PRE')byPP.pre++;else if(v==='POST')byPP.post++;else if(v)byPP.other++;});
+  const topC=Object.entries(byC).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('abKpis').innerHTML=`
+    <div class="kcard kr"><div class="klbl">Abandoned Chats</div><div class="kval">${tot.toLocaleString()}</div><div class="ksub">total missed</div></div>
+    <div class="kcard ka"><div class="klbl">Top Channel</div><div class="kval" style="font-size:16px">${topC?topC[0].slice(0,12):'—'}</div><div class="ksub">${topC?topC[1]+' chats':''}</div></div>
+    <div class="kcard"><div class="klbl">Arabic</div><div class="kval">${byL.ar}</div><div class="ksub">ar</div></div>
+    <div class="kcard kb"><div class="klbl">English</div><div class="kval">${byL.en}</div><div class="ksub">en</div></div>`;
+  setV('abBdg',tot);document.getElementById('abBdg').style.display='inline';
+  setV('abRCnt',tot.toLocaleString()+' rows');
+  // Charts
+  const cE=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
+  mkDonut('abChanC',cE.slice(0,6).map(e=>e[0]),cE.slice(0,6).map(e=>e[1]),cE.slice(0,6).map((_,i)=>BC[i]));
+  mkDonut('abLangC',['Arabic','English','Other'].filter((_,i)=>[byL.ar,byL.en,byL.other][i]>0),['Arabic','English','Other'].map((_,i)=>[byL.ar,byL.en,byL.other][i]).filter(v=>v>0),['#6B1F7C','#378ADD','#BA7517'].filter((_,i)=>[byL.ar,byL.en,byL.other][i]>0));
+  // Daily trend from Chat Request Time
+  if(dtI>=0){
+    const daily={};const hourly=new Array(24).fill(0);
+    data.forEach(r=>{
+      const n=Number(r[dtI]);
+      let d;
+      if(!isNaN(n)&&n>1e12)d=new Date(n);
+      else if(!isNaN(n)&&n>1e9)d=new Date(n*1000);
+      else d=parseDate(r[dtI]);
+      if(d){
+        const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        daily[k]=(daily[k]||0)+1;
+        hourly[d.getHours()]++;
+      }
+    });
+    const s=Object.keys(daily).sort();
+    if(S.charts.abTrend)S.charts.abTrend.destroy();
+    if(s.length)S.charts.abTrend=new Chart(document.getElementById('abTrendC'),{type:'bar',data:{labels:s.map(x=>x.slice(5)),datasets:[{data:s.map(x=>daily[x]),backgroundColor:'rgba(226,75,74,.7)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true}}}});
+    // Hourly drop chart
+    if(S.charts.abHour)S.charts.abHour.destroy();
+    const hmx=Math.max(...hourly.filter(v=>v>0),1);
+    S.charts.abHour=new Chart(document.getElementById('abHourC'),{type:'bar',data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets:[{data:hourly,backgroundColor:hourly.map(v=>v===hmx&&v>0?'#E24B4A':'rgba(226,75,74,.4)'),borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});
+  }
+  // Pre/Post Paid
+  if(S.charts.abPP)S.charts.abPP.destroy();
+  if(byPP.pre||byPP.post){
+    const ppD=[[`Pre (${byPP.pre})`,byPP.pre],[`Post (${byPP.post})`,byPP.post],...(byPP.other?[[`Other (${byPP.other})`,byPP.other]]:[])];
+    S.charts.abPP=new Chart(document.getElementById('abPPC'),{type:'doughnut',data:{labels:ppD.map(e=>e[0]),datasets:[{data:ppD.map(e=>e[1]),backgroundColor:['#6B1F7C','#1D9E75','#BA7517'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
+  }
+  // Table
+  const showI=[nmI,phI,cI,dI,langI,ppI,dtI].filter(i=>i>=0);
+  const showH=showI.map(i=>h[i]);
+  document.getElementById('abTable').innerHTML=`<thead><tr>${showH.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${data.slice(0,300).map(r=>`<tr>${showI.map(i=>{let v=String(r[i]!==undefined?r[i]:'');if(i===dtI){const d=parseAbDate(r[i]);if(d)v=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}return`<td title="${v}">${v.slice(0,35)}</td>`;}).join('')}</tr>`).join('')}</tbody>`;
+}
+
+// ══ AGENTS ════════════════════════════════════════════════════════════
+function renderAgents(){
+  // Use agent data and agent headers
+  if(!S.agRaw.length){show('ag-empty');hide('ag-content');return;}
+  const CA=detectCols(S.agHdrs);
+  const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
+  // filter agent data by date
+  const agFilt=S.agRaw.filter(r=>{
+    if(CA.bot>=0&&EXCL_DEPTS.test(String(r[CA.bot]||'')))return false;
+    if((from||to)&&CA.date>=0){const d=getDateStr(r[CA.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+    return true;
+  });
+  if(!agFilt.length){show('ag-empty');hide('ag-content');return;}
+  const ui=CA.agent>=0?CA.agent:-1;
+  if(ui<0){show('ag-empty');hide('ag-content');return;}
+  // Build agents map
+  const agMap={};agFilt.forEach(r=>{const a=String(r[ui]||'').trim();if(a)agMap[a]=(agMap[a]||0)+1;});
+  const agents=Object.entries(agMap).sort((a,b)=>b[1]-a[1]);
+  if(!agents.length){show('ag-empty');hide('ag-content');return;}
+  hide('ag-empty');show('ag-content');
+  const tot=agFilt.length;
+  const p=S.parsed;
+  // Wait by dept
+  const deptMap={};
+  agFilt.forEach(r=>{if(CA.bot>=0&&CA.wait>=0){const d=String(r[CA.bot]||'').trim();const w=toMins(r[CA.wait]);if(d&&!EXCL_DEPTS.test(d)&&!isNaN(w)&&w>=0){if(!deptMap[d])deptMap[d]=[];deptMap[d].push(w);}}});
+  const deptWait=Object.entries(deptMap).map(([d,vals])=>[d,avg(vals)]).filter(([,w])=>w!==null).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const waitDeptHtml=deptWait.length?`<div class="card" style="margin-bottom:10px"><div class="chdr"><div><div class="ct">Wait Time by Department</div></div></div>${deptWait.map(([d,w],i)=>{const c=w<3?'#1D9E75':w<8?'#BA7517':'#E24B4A';return`<div class="brow"><div class="blbl" title="${d}">${d}</div><div class="btrk"><div class="bfil" style="width:${Math.round(w/deptWait[0][1]*100)}%;background:${c}"></div></div><div class="bval" style="color:${c}">${fmtHMS(w*60)}</div></div>`;}).join('')}</div>`:'';
+  const html=`
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">
+      <div class="kcard kc" style="border:2px solid var(--coral)"><div class="klbl">⏳ Avg Wait Time</div><div class="kval">${p&&p.globalWait!==null?fmtHMS(p.globalWait*60):'—'}</div><div class="ksub">by dept</div></div>
+      <div class="kcard"><div class="klbl">Total Agents</div><div class="kval">${agents.length}</div><div class="ksub">in period</div></div>
+      <div class="kcard kg"><div class="klbl">Top Agent</div><div class="kval">${agents[0]?agents[0][1]:0}</div><div class="ksub">${agents[0]?agents[0][0].slice(0,15):''}</div></div>
+      <div class="kcard ka"><div class="klbl">Avg / Agent</div><div class="kval">${Math.round(tot/agents.length)}</div><div class="ksub">conversations</div></div>
+      <div class="kcard kb"><div class="klbl">Total Agent Convs</div><div class="kval">${tot.toLocaleString()}</div></div>
+    </div>
+    ${waitDeptHtml}
+    <div class="card">
+      <div class="chdr"><div><div class="ct">Agent Performance</div><div class="cs">IRT · FRT · AHT (Start→End) · Wait</div></div></div>
+      <div style="overflow-x:auto"><table class="atbl">
+        <thead><tr><th>Agent</th><th>Conversations</th><th>IRT</th><th>FRT</th><th>AHT</th><th>Wait</th></tr></thead>
+        <tbody>${agents.slice(0,60).map(([a,cnt])=>{
+          const ar=agFilt.filter(r=>String(r[ui]||'').trim()===a);
+          const irt=CA.irt>=0?avg(ar.map(r=>toMins(r[CA.irt])).filter(v=>!isNaN(v)&&v>=0)):null;
+          const frt=CA.frt>=0?avg(ar.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>=0)):null;
+          const aht=avg(ar.map(r=>computeAHT(r,CA)).filter(v=>!isNaN(v)&&v!==null&&v>=0));
+          const wait=CA.wait>=0?avg(ar.map(r=>toMins(r[CA.wait])).filter(v=>!isNaN(v)&&v>=0)):null;
+          const ib=irt!==null?(irt<3?'bg':irt<8?'ba':'br'):'';const fb=frt!==null?(frt<3?'bg':frt<8?'ba':'br'):'';
+          return`<tr><td><strong>${a}</strong></td><td>${cnt}</td><td>${irt!==null?`<span class="badge ${ib}">${fmtHMS(irt*60)}</span>`:'—'}</td><td>${frt!==null?`<span class="badge ${fb}">${fmtHMS(frt*60)}</span>`:'—'}</td><td>${aht?fmtHMS(aht*60):'—'}</td><td>${wait!==null?fmtHMS(wait*60):'—'}</td></tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>`;
+  document.getElementById('ag-content').innerHTML=html;
+}
+
+// ══ SPEED ═════════════════════════════════════════════════════════════
+function renderSpeed(){
+  const p=S.parsed;if(!p||(p.globalIrt===null&&p.globalFrt===null&&p.globalAht===null)){show('sp-empty');hide('sp-content');return;}
+  hide('sp-empty');show('sp-content');
+  document.getElementById('spKpis').innerHTML=`
+    <div class="kcard ka"><div class="klbl">Avg IRT</div><div class="kval">${p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'}</div></div>
+    <div class="kcard kb"><div class="klbl">Avg FRT</div><div class="kval">${p.globalFrt!==null?fmtHMS(p.globalFrt*60):'—'}</div></div>
+    <div class="kcard kr"><div class="klbl">Avg AHT</div><div class="kval">${p.globalAht!==null?fmtHMS(p.globalAht*60):'—'}</div></div>
+    <div class="kcard kc"><div class="klbl">Avg Wait</div><div class="kval">${p.globalWait!==null?fmtHMS(p.globalWait*60):'—'}</div></div>`;
+  const mkB=(m,color)=>{const e=Object.entries(m);if(!e.length)return'<div style="font-size:11px;color:var(--faint);padding:5px">No data</div>';const mx=Math.max(...e.map(x=>x[1]));return e.slice(0,8).map(([k,v])=>`<div class="brow"><div class="blbl">${k}</div><div class="btrk"><div class="bfil" style="width:${Math.round(v/mx*100)}%;background:${color}"></div></div><div class="bval">${fmtHMS(v*60)}</div></div>`).join('');};
+  document.getElementById('irtBars').innerHTML=mkB(p.irtMap,'#BA7517');
+  document.getElementById('frtBars').innerHTML=mkB(p.frtMap,'#185FA5');
+  document.getElementById('ahtBars').innerHTML=mkB(p.ahtMap,'#D85A30');
+  const chans=[...new Set([...Object.keys(p.irtMap),...Object.keys(p.frtMap),...Object.keys(p.ahtMap)])];
+  if(chans.length){if(S.charts.speed)S.charts.speed.destroy();S.charts.speed=new Chart(document.getElementById('speedC'),{type:'bar',data:{labels:chans,datasets:[{label:'IRT',data:chans.map(c=>p.irtMap[c]||0),backgroundColor:'#BA7517',borderRadius:3},{label:'FRT',data:chans.map(c=>p.frtMap[c]||0),backgroundColor:'#185FA5',borderRadius:3},{label:'AHT',data:chans.map(c=>p.ahtMap[c]||0),backgroundColor:'#D85A30',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:8,padding:7}}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9},callback:v=>fmtHMS(v*60)},beginAtZero:true}}}});}
+}
+
+// ══ TAGS ══════════════════════════════════════════════════════════════
+function renderTags(){
+  // Build tags from agent data (agent file has Tags column)
+  const CA=S.agHdrs.length?detectCols(S.agHdrs):S.cols;
+  const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
+  const agFilt=S.agRaw.filter(r=>{
+    if(CA.bot>=0&&EXCL_DEPTS.test(String(r[CA.bot]||'')))return false;
+    if((from||to)&&CA.date>=0){const d=getDateStr(r[CA.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+    return true;
+  });
+  const tagMap={};
+  // Try agent data first
+  if(CA.tag>=0){agFilt.forEach(r=>{const t=String(r[CA.tag]||'').trim();if(t&&t!=='-')tagMap[t]=(tagMap[t]||0)+1;});}
+  // Also try bot data if it has tags
+  const CB=detectCols(S.botHdrs);
+  if(CB.tag>=0){S.filt.filter(r=>{if((from||to)&&CB.date>=0){const d=getDateStr(r[CB.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}return true;}).forEach(r=>{const t=String(r[CB.tag]||'').trim();if(t&&t!=='-')tagMap[t]=(tagMap[t]||0)+1;});}
+  const tags=Object.entries(tagMap).sort((a,b)=>b[1]-a[1]);
+  if(!tags.length){show('tg-empty');hide('tg-content');return;}
+  hide('tg-empty');show('tg-content');
+  const tot=agFilt.length||S.filt.length||1;
+  const mx=tags[0][1];
+  document.getElementById('tagBars').innerHTML=tags.slice(0,10).map(([t,c],i)=>
+    `<div class="brow" style="margin-bottom:9px">
+      <div class="blbl" title="${t}" style="min-width:200px;font-size:12px">${t}</div>
+      <div class="btrk" style="height:10px"><div class="bfil" style="width:${Math.round(c/mx*100)}%;background:${BC[i%BC.length]}"></div></div>
+      <div class="bval" style="min-width:44px">${c.toLocaleString()}</div>
+      <div style="font-size:10px;color:var(--faint);min-width:36px;text-align:right">${Math.round(c/tot*100)}%</div>
+    </div>`
+  ).join('');
+  document.getElementById('allTags').innerHTML=tags.map((t,i)=>{const s=TS[i%TS.length];return`<span class="tpill" style="background:${s.bg};color:${s.t}">${t[0]} <span class="tn">${t[1]}</span></span>`;}).join('');
+}
+
+// ══ RAW DATA ══════════════════════════════════════════════════════════
+function renderRawData(){
+  if(!S.filt.length){show('rd-empty');hide('rd-content');return;}
+  hide('rd-empty');show('rd-content');
+  const cols=S.hdrs.slice(0,12);
+  setV('rdCnt',S.filt.length.toLocaleString()+' rows');
+  document.getElementById('rdTable').innerHTML=`<thead><tr>${cols.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${S.filt.slice(0,300).map(r=>`<tr>${cols.map((_,i)=>`<td title="${String(r[i]||'')}">${String(r[i]!==undefined?r[i]:'').slice(0,42)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+
+// ══ SEARCH ════════════════════════════════════════════════════════════
+function doSearch(){
+  const q=document.getElementById('srcI').value.trim().toLowerCase();
+  if(!q){document.getElementById('srcRes').innerHTML='';show('srcEmp');return;}
+  if(!S.raw.length){show('srcEmp');return;}
+  hide('srcEmp');
+  const hits=S.raw.filter(r=>r.some(c=>String(c||'').toLowerCase().includes(q))).slice(0,50);
+  if(!hits.length){document.getElementById('srcRes').innerHTML=`<div class="empty2"><div style="font-size:14px;font-weight:700">No results for "${q}"</div></div>`;return;}
+  const C=S.cols;const ci=C?C.cust:-1;
+  const g={};hits.forEach(r=>{const id=ci>=0?String(r[ci]||'?').trim():'?';if(!g[id])g[id]=[];g[id].push(r);});
+  document.getElementById('srcRes').innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:9px">Found <strong>${hits.length}</strong> conversations · <strong>${Object.keys(g).length}</strong> customer(s)</div>`+
+  Object.entries(g).slice(0,20).map(([id,rows])=>{
+    const irt=C&&C.irt>=0?avg(rows.map(r=>toMins(r[C.irt])).filter(v=>!isNaN(v))):null;
+    const tags=C&&C.tag>=0?[...new Set(rows.map(r=>String(r[C.tag]||'').trim()).filter(Boolean))]:[];
+    const chs=C&&C.chan>=0?[...new Set(rows.map(r=>String(r[C.chan]||'').trim()).filter(Boolean))]:[];
+    const convs=rows.slice(0,4).map(r=>{
+      const t=C&&C.tag>=0?r[C.tag]:'';const ch=C&&C.chan>=0?r[C.chan]:'';
+      const dt=C&&C.date>=0?String(r[C.date]||'').slice(0,16):'';const iv=C&&C.irt>=0?r[C.irt]:'';const st=C&&C.status>=0?r[C.status]:'';
+      return`<div class="crow">${t?`<span class="badge bpur">${t}</span>`:''}${ch?`<span style="color:var(--muted)">${ch}</span>`:''}${iv?`<span style="color:var(--amber)">${iv}</span>`:''}${st?`<span class="badge ba">${st}</span>`:''}${dt?`<span style="margin-left:auto;font-size:9px;color:var(--faint)">${dt}</span>`:''}</div>`;
+    }).join('');
+    return`<div class="src-card"><div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--bl);margin-bottom:10px"><div class="cav">${id[0].toUpperCase()}</div><div><div style="font-size:13px;font-weight:700">${id}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${rows.length} conversation${rows.length>1?'s':''} · ${chs.join(', ')||'—'}${irt!==null?' · IRT: '+fmtHMS(irt*60):''}</div></div><div style="margin-left:auto;display:flex;gap:4px;flex-wrap:wrap">${tags.slice(0,3).map((t,i)=>{const s=TS[i%TS.length];return`<span class="tpill" style="background:${s.bg};color:${s.t}">${t}</span>`;}).join('')}</div></div>${convs}${rows.length>4?`<div style="font-size:9px;color:var(--faint);text-align:center;padding-top:5px">+${rows.length-4} more</div>`:''}</div>`;
+  }).join('');
+}
+function clearSrc(){document.getElementById('srcI').value='';document.getElementById('srcRes').innerHTML='';show('srcEmp');}
+
+// ══ CHART HELPERS ═════════════════════════════════════════════════════
+function mkDonut(id,labels,data,colors){if(S.charts[id])S.charts[id].destroy();if(!data.filter(v=>v>0).length)return;S.charts[id]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8,boxWidth:9,boxHeight:9}}}}});}
+function mkBar(id,labels,data,colors){if(S.charts[id])S.charts[id].destroy();if(!data.length)return;const c=colors||BC;S.charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[{data,backgroundColor:c,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});}
+
+// ══ DATA SNAPSHOT ═════════════════════════════════════════════════════
+function renderDataSnap(){
+  const p=S.parsed;if(!p)return;show('snapCard');
+  const rows=[['Rows',S.filt.length.toLocaleString()],['Bots',p.bots.length||'—'],['Agents',p.agents.length||'—'],['Tags',p.tags.length||'—'],['Avg IRT',p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'],['Avg FRT',p.globalFrt!==null?fmtHMS(p.globalFrt*60):'—'],['Flow',p.flowPct!==null?p.flowPct+'%':'—']];
+  document.getElementById('snapR').innerHTML=rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bl);font-size:11px"><span style="color:var(--muted)">${k}</span><span style="font-weight:700">${v}</span></div>`).join('');
+}
+
+// ══ EXCEL BOT ═════════════════════════════════════════════════════════
+function fillQ(el){document.getElementById('chatI').value=el.textContent.trim();document.getElementById('chatI').focus();}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function buildCtx(){if(!S.parsed)return'No data.';const p=S.parsed;return`STC Kuwait eChannel — ${S.filt.length} rows (B2B+NOC excluded)\nCols: ${S.hdrs.join(', ')}\nBots: ${p.bots.slice(0,5).map(b=>b[0]+' ('+b[1]+')').join(', ')}\nAgents: ${p.agents.slice(0,4).map(a=>a[0]+' ('+a[1]+')').join(', ')}\nIRT: ${p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'}, FRT: ${p.globalFrt!==null?fmtHMS(p.globalFrt*60):'—'}, AHT: ${p.globalAht!==null?fmtHMS(p.globalAht*60):'—'}\nFlow: ${p.flowPct!==null?p.flowPct+'%':'—'}`;}
+async function sendMsg(){
+  const inp=document.getElementById('chatI');const msg=inp.value.trim();if(!msg)return;
+  if(!S.apiKey){openApiMov();return;}
+  inp.value='';addCM('user',msg);
+  const btn=document.getElementById('sndBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+  const tid=addTyping();S.chatHist.push({role:'user',content:msg});
+  try{const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`Expert analyst for STC Kuwait eChannel.\n${buildCtx()}\nAnswer concisely.`,messages:S.chatHist})});const data=await resp.json();removeT(tid);if(data.content?.[0]){const r=data.content[0].text;S.chatHist.push({role:'assistant',content:r});addCM('ai',r);}else if(data.error)addCM('ai','⚠️ '+data.error.message);}
+  catch(e){removeT(tid);addCM('ai','⚠️ Connection error.');}
+  btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><path d="M14 2L2 6l5 3 3 5 4-12z"/></svg>';
+}
+function addCM(role,text){const el=document.getElementById('chatMsgs');const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});el.innerHTML+=`<div class="msg ${role}"><div class="mbbl">${text.replace(/\n/g,'<br>')}</div><div class="mtime">${t}</div></div>`;el.scrollTop=el.scrollHeight;}
+function addTyping(){const el=document.getElementById('chatMsgs');const id='t'+Date.now();el.innerHTML+=`<div class="msg ai" id="${id}"><div class="typing"><span></span><span></span><span></span></div></div>`;el.scrollTop=el.scrollHeight;return id;}
+function removeT(id){const e=document.getElementById(id);if(e)e.remove();}
+
+// ══ API MODAL ═════════════════════════════════════════════════════════
+function openApiMov(){document.getElementById('apiI').value=S.apiKey;document.getElementById('apiMov').classList.add('open');}
+function closeApiMov(){document.getElementById('apiMov').classList.remove('open');}
+function saveAK(){S.apiKey=document.getElementById('apiI').value.trim();localStorage.setItem('eck_key',S.apiKey);closeApiMov();}
+document.getElementById('apiMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeApiMov();});
+
+// ══ CLEAR ═════════════════════════════════════════════════════════════
+function clearAll(){
+  S.raw=[];S.hdrs=[];S.filt=[];S.parsed=null;S.chatHist=[];S.selChans=new Set();S.selDepts=new Set();
+  S.botRaw=[];S.botHdrs=[];S._botFiles=[];S._botRawParts=[];
+  S.agRaw=[];S.agHdrs=[];S._agFiles=[];S._agRawParts=[];
+  S.abRaw=[];S.abHdrs=[];S._abFiles=[];S._abRawParts=[];
+  Object.values(S.charts).forEach(c=>{try{c.destroy();}catch(e){}});S.charts={};
+  localStorage.removeItem('eck_d');
+  document.getElementById('clrBtn').style.display='none';
+  ['rwBdg','botBdg','agBdg','abBdg'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  const upBdg=document.getElementById('upBdg');if(upBdg)upBdg.style.display='inline';
+  show('d-empty');hide('d-content');show('b-empty');hide('b-content');show('sm-empty');hide('sm-content');
+  show('sp-empty');hide('sp-content');show('tg-empty');hide('tg-content');show('rd-empty');hide('rd-content');
+  show('ag-empty');hide('ag-content');document.getElementById('ag-content').innerHTML='';
+  document.getElementById('cfbar').classList.remove('show');
+  document.getElementById('dDeptF').innerHTML='';
+  ['botFname','agFname','abFname','abFname2'].forEach(id=>{const e=document.getElementById(id);if(e){e.textContent='';e.style.display='none';}});
+  const su=document.getElementById('uploadStatus');if(su)su.style.display='none';
+  document.getElementById('dFrom').value='2025-01-01';
+  document.getElementById('dTo').value=localDate(new Date());
+  document.getElementById('pgS').textContent='Upload files to begin';
+  document.getElementById('chatMsgs').innerHTML='<div class="msg ai"><div class="mbbl">👋 Upload your files and ask me anything.</div><div class="mtime">Now</div></div>';
+  go('upload');
+}
+
+// ══ INIT ══════════════════════════════════════════════════════════════
+document.getElementById('dFrom').value='2025-01-01';
+document.getElementById('dTo').value=localDate(new Date());
+</script>
+</body>
+</html>
