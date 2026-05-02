@@ -118,15 +118,23 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .content{padding:18px}
 
 /* ── KPI CARDS ──────────────────────────── */
-.kg8{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-bottom:14px}
-.kg4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.kcard{background:white;border:1px solid var(--border);border-radius:var(--r);padding:12px 11px 10px;box-shadow:var(--sh);position:relative;overflow:hidden;border-left:3px solid var(--p)}
-.kcard.kg{border-left-color:var(--green)}.kcard.kb{border-left-color:var(--blue)}.kcard.ka{border-left-color:var(--amber)}.kcard.kr{border-left-color:var(--red)}.kcard.kc{border-left-color:var(--coral)}.kcard.kgr{border-left-color:#7F77DD}
-.klbl{font-size:8px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kval{font-size:16px;font-weight:800;line-height:1.1;word-break:break-all}
-.ksub{font-size:9px;color:var(--faint);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kico{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center}
-.kico svg{width:14px;height:14px}
+.kg8{display:grid;grid-template-columns:repeat(9,1fr);gap:10px;margin-bottom:16px}
+.kg4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kcard{background:white;border:none;border-radius:14px;padding:14px 15px 13px;box-shadow:0 2px 12px rgba(107,31,124,.08),0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.kcard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(107,31,124,.14)}
+.kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.kcard.kp::before{background:linear-gradient(90deg,#6B1F7C,#9B3BAD)}
+.kcard.kg::before{background:linear-gradient(90deg,#0f7a5a,#1D9E75)}
+.kcard.kb::before{background:linear-gradient(90deg,#0d4a8a,#2176C7)}
+.kcard.ka::before{background:linear-gradient(90deg,#8a4a00,#D4820A)}
+.kcard.kr::before{background:linear-gradient(90deg,#9a1515,#E24B4A)}
+.kcard.kc::before{background:linear-gradient(90deg,#7a2800,#D85A30)}
+.kcard.kgr::before{background:linear-gradient(90deg,#3d3594,#7F77DD)}
+.kcard-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0}
+.kcard-icon svg{width:16px;height:16px}
+.klbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.kval{font-size:20px;font-weight:900;line-height:1;color:var(--text);letter-spacing:-.5px}
+.ksub{font-size:9px;color:var(--faint);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ── CARDS ──────────────────────────────── */
 .card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
@@ -376,6 +384,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
       <div class="ni" onclick="go('upload')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9M5 4l3-3 3 3M2 13h12"/></svg>Upload Files<span class="nbdg" id="upBdg" style="background:#BA7517">!</span></div>
       <div class="ni active" onclick="go('dashboard')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
       <div class="ni" onclick="go('handover')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M8 3v10"/><circle cx="8" cy="8" r="6.5"/></svg>Handover Report</div>
+      <div class="ni" onclick="go('monthly')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M4 1v2M12 1v2M1 6h14"/><path d="M4 10h2M7 10h2M10 10h2M4 13h2"/></svg>Monthly Report</div>
       <div class="ni" onclick="go('bots')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="9" rx="2"/><path d="M5 5V3a3 3 0 016 0v2"/><circle cx="5.5" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="10.5" cy="9.5" r="1" fill="currentColor" stroke="none"/></svg>Bots<span class="nbdg" id="botBdg" style="display:none">0</span></div>
       <div class="ni" onclick="go('social')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="8" r="2.5"/><circle cx="12" cy="4" r="2.5"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 7L9.5 5M6.5 9L9.5 11"/></svg>Social Media</div>
       <div class="ni" onclick="go('abandoned')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v5l3 2"/><circle cx="8" cy="8" r="6.5"/></svg>Abandoned Chat<span class="nbdg" id="abBdg" style="display:none">0</span></div>
@@ -403,6 +412,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
         <button class="qbtn" id="qb-yesterday" onclick="setQ('yesterday')">Yesterday</button>
         <button class="qbtn" id="qb-week" onclick="setQ('week')">This Week</button>
         <button class="qbtn" id="qb-month" onclick="setQ('month')">This Month</button>
+        <button class="qbtn" id="qb-lastmonth" onclick="setQ('lastmonth')">Last Month</button>
         <div class="dfilt">
           <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="#9ca3af" stroke-width="1.5"><rect x="1" y="2" width="12" height="11" rx="1.5"/><path d="M4 1v2M10 1v2M1 6h12"/></svg>
           <input type="date" id="dFrom" onkeydown="if(event.key==='Enter')applyF()" onchange="clearQ()">
@@ -475,7 +485,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
             </div>
             <div style="flex:1">
               <div style="font-size:13px;font-weight:700;color:var(--text)">3️⃣ Abandoned Chat Excel <span style="font-size:11px;color:var(--red);font-weight:600">● Missed / Drop chats</span></div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">Drop.csv / Derop.csv · Multiple files OK · Shows in Abandoned Chat page</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Drop.csv · Multiple files OK · Shows in Abandoned Chat page</div>
               <div id="abFileList" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px"></div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">
@@ -540,6 +550,32 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
       </div>
     </div>
 
+    <!-- MONTHLY REPORT PAGE -->
+    <div class="page content" id="page-monthly">
+      <div id="mon-empty" class="empty2"><div class="eico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="22" height="19" rx="2"/><path d="M1 9h22M8 3v6M16 3v6"/></svg></div><div style="font-size:14px;font-weight:700;margin-bottom:4px">No data</div><div style="font-size:12px;color:var(--muted)">Upload Agent + Bot files to generate monthly report</div></div>
+      <div id="mon-content" style="display:none">
+        <div class="hov-header" style="margin-bottom:16px">
+          <div>
+            <div class="hov-title">📅 eChannels Monthly Report</div>
+            <div class="hov-date">WhatsApp &amp; Web — Monthly KPIs &amp; Volume</div>
+          </div>
+          <div class="hov-print" onclick="window.print()">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>Print / Save PDF
+          </div>
+        </div>
+        <!-- KPI Table -->
+        <div class="card" style="margin-bottom:14px;overflow-x:auto">
+          <div class="chdr"><div><div class="ct">Monthly KPIs — WhatsApp &amp; Web</div><div class="cs">Wait · IRT · AHT · Abandoned · FRT Social</div></div></div>
+          <div id="monKpiTable"></div>
+        </div>
+        <!-- Volume Chart -->
+        <div class="card">
+          <div class="chdr"><div><div class="ct">Monthly Volume — Bot vs Agent</div><div class="cs">Bot Transaction vs Need Assistance</div></div></div>
+          <div class="cw" style="height:320px"><canvas id="monVolChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
     <!-- DASHBOARD PAGE -->
     <div class="page content" id="page-dashboard">
       <div id="d-empty" style="text-align:center;padding:60px 20px">
@@ -571,6 +607,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
             <div style="display:flex;gap:4px;flex-wrap:wrap" id="hourChanSel"></div>
           </div>
           <div class="cw" style="height:155px"><canvas id="hourChart" role="img" aria-label="Hourly">Hourly</canvas></div>
+          <div id="abHourSummary" style="display:none;margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"></div>
         </div>
         <!-- Row 3: Ended by + Dept -->
         <div class="g2" style="margin-bottom:10px">
@@ -641,7 +678,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
     <div class="page content" id="page-abandoned">
       <div class="ab-up">
         <div class="ab-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B1F7C" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:700">Upload Abandoned / Drop Chat File</div><div style="font-size:11px;color:var(--muted);margin-top:2px">e.g. Drop.csv · Derop.csv</div><div id="abFname" style="font-size:11px;color:var(--p);margin-top:3px;display:none"></div></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700">Upload Abandoned / Drop Chat File</div><div style="font-size:11px;color:var(--muted);margin-top:2px">e.g. Drop.csv</div><div id="abFname" style="font-size:11px;color:var(--p);margin-top:3px;display:none"></div></div>
         <label class="btn purple" for="abXL"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4.5 3.5L7 1l2.5 2.5M2 12h10"/></svg>Choose File</label>
         <input type="file" id="abXL" class="xinp" accept=".xlsx,.xls,.csv">
       </div>
@@ -742,9 +779,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 <script>
 // ══ CONSTANTS ═════════════════════════════════════════════════════════
 const EXCL_DEPTS=/(b2b|noc)/i;
-const SOCIAL_PUBLIC=['Instagram Comments','Facebook Comments','Google Map Comments','Youtube Comments','Google Playstore Review','App Store Review'];
-const SOCIAL_PRIVATE=['Instagram DM','Messenger','Social media','Social Media Facebook DM'];
-const SOCIAL_ALL=[...SOCIAL_PUBLIC,...SOCIAL_PRIVATE];
+const SOCIAL_PUBLIC=['Instagram Comments','Facebook Comments'];
+const SOCIAL_PRIVATE=['Instagram DM','Messenger'];
+const SOCIAL_ALL=[...SOCIAL_PUBLIC,...SOCIAL_PRIVATE,'Google Map Comments','Youtube Comments','Google Playstore Review','App Store Review','Social media','Social Media Facebook DM'];
 const BC=['#6B1F7C','#1D9E75','#378ADD','#D85A30','#D4537E','#BA7517','#639922','#E24B4A','#185FA5','#0F6E56','#7F77DD','#C84DB5'];
 const TS=[{bg:'#EEEDFE',t:'#3C3489'},{bg:'#E1F5EE',t:'#085041'},{bg:'#E6F1FB',t:'#0C447C'},{bg:'#FAECE7',t:'#712B13'},{bg:'#FBEAF0',t:'#72243E'},{bg:'#FAEEDA',t:'#633806'},{bg:'#EAF3DE',t:'#27500A'},{bg:'#FCEBEB',t:'#791F1F'}];
 
@@ -767,7 +804,13 @@ function doLogin(){
   document.getElementById('lemail').value='';document.getElementById('lpass').value='';
   loadSaved();
 }
-function doLogout(){AUTH.current=null;document.getElementById('AS').style.display='none';document.getElementById('LS').style.display='flex';}
+function doLogout(){
+  AUTH.current=null;
+  document.getElementById('AS').style.display='none';
+  document.getElementById('LS').style.display='flex';
+  // Reset to upload page for next login
+  go('upload');
+}
 function showLE(m){const e=document.getElementById('lerr');document.getElementById('lerrmsg').textContent=m;e.style.display='flex';}
 function clearLE(){document.getElementById('lerr').style.display='none';}
 function toggleEye(){const i=document.getElementById('lpass');i.type=i.type==='password'?'text':'password';}
@@ -993,8 +1036,11 @@ function loadSaved(){
       document.getElementById('clrBtn').style.display='flex';
       document.getElementById('upBdg').style.display='none';
       updateUploadStatus();
+      go('dashboard'); // has data → go to dashboard
+    }else{
+      go('upload'); // no data → go to upload
     }
-  }catch(e){}
+  }catch(e){go('upload');}
 }
 
 // ══ COLUMN DETECT ═════════════════════════════════════════════════════
@@ -1078,17 +1124,28 @@ function recompute(){
   const to=document.getElementById('dTo').value;
   function dateFilter(rows,hdrs){
     const C2=detectCols(hdrs);
+    const selCh=[...S.selChans];
+    const selDp=[...S.selDepts];
     return rows.filter(r=>{
       if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
       if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      if(selCh.length>0&&C2.chan>=0&&!selCh.includes(String(r[C2.chan]||'').trim()))return false;
+      if(selDp.length>0&&C2.bot>=0&&!selDp.includes(String(r[C2.bot]||'').trim()))return false;
       return true;
     });
   }
   const agData=S.agRaw.length?dateFilter(S.agRaw,S.agHdrs):[];
   const botData=S.botRaw.length?dateFilter(S.botRaw,S.botHdrs):[];
 
-  // Use agData for speed metrics (IRT/FRT/AHT/Wait) — bot file doesn't have these
-  const metricData=agData.length>0?agData:[];
+  // IRT / AHT / Wait — only from WhatsApp + Web (non-social channels)
+  const WW_CHANS=['whatsapp','web'];
+  const metricData=agData.filter(r=>{
+    if(CA.chan<0)return true;
+    const ch=String(r[CA.chan]||'').toLowerCase().trim();
+    return WW_CHANS.some(w=>ch.includes(w));
+  });
+  // fallback: if no WW data, use all agent data
+  const metricSrc=metricData.length>0?metricData:agData;
 
   const byChanOf=(rows,C2,idx,useFn)=>{
     if(idx<0&&!useFn)return{};const m={};
@@ -1167,14 +1224,14 @@ function recompute(){
 
   S.parsed={bots,agents,tags,chans,langMap,ppMap,abCnt,botDet,socData,pubData,priData,agentsInRange,
     flowPct:null,ended:[],
-    irtMap:byChanOf(metricData,CA,CA.irt),
-    frtMap:byChanOf(metricData,CA,CA.frt),
-    ahtMap:byChanOf(metricData,CA,-1,computeAHT),
-    waitMap:byChanOf(metricData,CA,CA.wait),
-    globalIrt:gAvgOf(metricData,CA,CA.irt),
-    globalFrt:gAvgOf(metricData,CA,CA.frt),
-    globalAht:gAvgOf(metricData,CA,-1,computeAHT),
-    globalWait:gAvgOf(metricData,CA,CA.wait)
+    irtMap:byChanOf(metricSrc,CA,CA.irt),
+    frtMap:byChanOf(metricSrc,CA,CA.frt),
+    ahtMap:byChanOf(metricSrc,CA,-1,computeAHT),
+    waitMap:byChanOf(metricSrc,CA,CA.wait),
+    globalIrt:gAvgOf(metricSrc,CA,CA.irt),
+    globalFrt:gAvgOf(metricSrc,CA,CA.frt),
+    globalAht:gAvgOf(metricSrc,CA,-1,computeAHT),
+    globalWait:gAvgOf(metricSrc,CA,CA.wait)
   };
   // Also rebuild S.filt to be all data for charts/search
   S.filt=[...botData,...agData];
@@ -1216,6 +1273,10 @@ function setQ(range){
     const w=new Date(today);w.setDate(w.getDate()-6);from=w;to=today;
   }
   else if(range==='month'){from=new Date(now.getFullYear(),now.getMonth(),1,0,0,0,0);to=today;}
+  else if(range==='lastmonth'){
+    from=new Date(now.getFullYear(),now.getMonth()-1,1,0,0,0,0);
+    to=new Date(now.getFullYear(),now.getMonth(),0,0,0,0,0); // last day of prev month
+  }
   document.getElementById('dFrom').value=localDate(from);
   document.getElementById('dTo').value=localDate(to);
   document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
@@ -1230,14 +1291,138 @@ function go(name){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.ni').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+name+"'"))n.classList.add('active');});
-  const T={upload:'Upload Files',dashboard:'Dashboard',handover:'Handover Report',bots:'Bots',social:'Social Media',abandoned:'Abandoned Chat',agents:'Agents',speed:'IRT / FRT / AHT',tags:'Tags',search:'Search Customer',bot:'Excel Bot',data:'Raw Data'};
+  const T={upload:'Upload Files',dashboard:'Dashboard',handover:'Handover Report',monthly:'Monthly Report',bots:'Bots',social:'Social Media',abandoned:'Abandoned Chat',agents:'Agents',speed:'IRT / FRT / AHT',tags:'Tags',search:'Search Customer',bot:'Excel Bot',data:'Raw Data'};
   document.getElementById('pgT').textContent=T[name]||name;
 }
 
 // ══ RENDER ALL ════════════════════════════════════════════════════════
-function renderAll(){renderDashboard();renderBots();renderSocial();renderAgents();renderTags();renderSpeed();renderRawData();renderHandover();}
+function renderAll(){renderDashboard();renderBots();renderSocial();renderAgents();renderTags();renderSpeed();renderRawData();renderHandover();renderMonthly();}
 
-// ══ HANDOVER REPORT ════════════════════════════════════════════════════
+// ══ MONTHLY REPORT ════════════════════════════════════════════════════
+function renderMonthly(){
+  if(!S.agRaw.length&&!S.botRaw.length){show('mon-empty');hide('mon-content');return;}
+  hide('mon-empty');show('mon-content');
+  const CA=detectCols(S.agHdrs);const CB=detectCols(S.botHdrs);
+  const WW_CHANS=['whatsapp','web'];
+
+  // Group agent data by month
+  function getMonth(r,C2){
+    const d=C2.date>=0?parseDate(r[C2.date]):null;
+    if(!d)return null;
+    return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  // Get all months from both files
+  const allMonths=new Set();
+  S.agRaw.forEach(r=>{const m=getMonth(r,CA);if(m)allMonths.add(m);});
+  S.botRaw.forEach(r=>{const m=getMonth(r,CB);if(m)allMonths.add(m);});
+  const months=[...allMonths].sort();
+  if(!months.length){show('mon-empty');hide('mon-content');return;}
+
+  const monthLabel=m=>{const [y,mo]=m.split('-');const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${names[parseInt(mo)-1]}-${y.slice(2)}`;};
+
+  // Monthly KPI calculations
+  const monthData=months.map(m=>{
+    // Agent rows for this month (WhatsApp+Web only)
+    const agRows=S.agRaw.filter(r=>{
+      if(getMonth(r,CA)!==m)return false;
+      if(CA.chan>=0){const ch=String(r[CA.chan]||'').toLowerCase();if(!WW_CHANS.some(w=>ch.includes(w)))return false;}
+      if(CA.bot>=0&&EXCL_DEPTS.test(String(r[CA.bot]||'')))return false;
+      return true;
+    });
+    const botRows=S.botRaw.filter(r=>{
+      if(getMonth(r,CB)!==m)return false;
+      if(CB.bot>=0&&EXCL_DEPTS.test(String(r[CB.bot]||'')))return false;
+      return true;
+    });
+    const totBot=botRows.length;const totAg=agRows.length;const tot=totBot+totAg;
+    const botPct=tot>0?Math.round(totBot/tot*100):0;
+    const agPct=tot>0?Math.round(totAg/tot*100):0;
+    const gAvg=(rows,C2,idx,fn)=>{if(!rows.length||(idx<0&&!fn))return null;const v=rows.map(r=>fn?fn(r,C2):toMins(r[idx])).filter(v=>!isNaN(v)&&v>0);return avg(v);};
+    // Social FRT for this month
+    const socRows=S.agRaw.filter(r=>{
+      if(getMonth(r,CA)!==m)return false;
+      if(CA.chan<0)return false;
+      const ch=String(r[CA.chan]||'').trim();
+      return['Instagram Comments','Facebook Comments','Instagram DM','Messenger'].includes(ch);
+    });
+    const socFrt=CA.frt>=0?avg(socRows.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>0)):null;
+    // Abandoned for this month
+    const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+    const abCount=abDtI>=0?S.abRaw.filter(r=>{
+      const n=Number(r[abDtI]);let d;if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+      if(!d)return false;
+      const dm=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      return dm===m;
+    }).length:0;
+    return{m,tot,totBot,totAg,botPct,agPct,
+      wait:gAvg(agRows,CA,CA.wait),irt:gAvg(agRows,CA,CA.irt),
+      aht:gAvg(agRows,CA,-1,computeAHT),socFrt,abCount
+    };
+  });
+
+  // KPI Table
+  const TARGET={wait:2,irt:1,aht:12,socFrt:7.5};
+  function clr(val,target){if(val===null)return'var(--muted)';return val<=target?'var(--green)':'var(--red)';}
+  const hdrs=months.map(m=>`<th style="background:#4a1060;color:white;padding:8px 12px;font-size:11px;font-weight:700;white-space:nowrap;text-align:center">${monthLabel(m)}</th>`).join('');
+  const mkRow=(label,vals,target,icon='')=>`<tr><td style="padding:8px 12px;font-size:12px;font-weight:600;background:#faf7ff;white-space:nowrap">${icon} ${label}</td>${vals.map(v=>`<td style="padding:8px 12px;font-size:12px;text-align:center;font-weight:700;color:${target?clr(v,target):'var(--text)'}">${v!==null&&v!==undefined?fmtHMS((v||0)*60):'—'}</td>`).join('')}</tr>`;
+  const mkRowNum=(label,vals)=>`<tr><td style="padding:8px 12px;font-size:12px;font-weight:600;background:#faf7ff;white-space:nowrap">${label}</td>${vals.map(v=>`<td style="padding:8px 12px;font-size:12px;text-align:center">${v!==null&&v!==undefined?v.toLocaleString():'—'}</td>`).join('')}</tr>`;
+  document.getElementById('monKpiTable').innerHTML=`
+    <table style="width:100%;border-collapse:collapse;font-family:inherit">
+      <thead><tr><th style="background:#2d1040;color:white;padding:9px 12px;font-size:11px;text-align:left;min-width:160px">Metric</th>${hdrs}</tr></thead>
+      <tbody>
+        ${mkRow('⏳ Waiting Time (AWT)',monthData.map(d=>d.wait),TARGET.wait)}
+        ${mkRow('⚡ IRT',monthData.map(d=>d.irt),TARGET.irt)}
+        ${mkRow('🕐 Chat Duration (AHT)',monthData.map(d=>d.aht),TARGET.aht)}
+        ${mkRowNum('🚫 Abandoned Chats',monthData.map(d=>d.abCount))}
+        ${mkRow('📱 FRT (Social Media)',monthData.map(d=>d.socFrt),TARGET.socFrt)}
+      </tbody>
+    </table>`;
+
+  // Volume Bar Chart
+  if(S.charts.monVol)S.charts.monVol.destroy();
+  const totals=monthData.map(d=>d.tot);
+  const prevTot=[null,...totals.slice(0,-1)];
+  const changes=totals.map((v,i)=>i===0?null:Math.round((v-prevTot[i])/Math.max(prevTot[i],1)*100));
+  S.charts.monVol=new Chart(document.getElementById('monVolChart'),{
+    type:'bar',
+    data:{
+      labels:months.map(m=>monthLabel(m)),
+      datasets:[
+        {label:'Bot Transaction',data:monthData.map(d=>d.totBot),backgroundColor:'#6B1F7C',borderRadius:4,borderSkipped:false,stack:'total'},
+        {label:'Need Assistance',data:monthData.map(d=>d.totAg),backgroundColor:'#E24B4A',borderRadius:0,borderSkipped:false,stack:'total'}
+      ]
+    },
+    plugins:[{
+      id:'changeLabels',
+      afterDraw(chart){
+        const ctx=chart.ctx;
+        chart.data.datasets[1].data.forEach((_,i)=>{
+          const meta0=chart.getDatasetMeta(0);const meta1=chart.getDatasetMeta(1);
+          const b0=meta0.data[i];const b1=meta1.data[i];
+          const tot=monthData[i].tot;const bot=monthData[i].totBot;const ag=monthData[i].totAg;
+          // Total above bar
+          ctx.save();ctx.font='bold 10px "IBM Plex Sans",sans-serif';ctx.fillStyle='#333';ctx.textAlign='center';ctx.textBaseline='bottom';
+          ctx.fillText(tot.toLocaleString(),b1.x,b1.y-18);
+          // Change %
+          const ch=changes[i];
+          if(ch!==null){ctx.fillStyle=ch>0?'var(--green)':'var(--red)';ctx.font='bold 9px "IBM Plex Sans",sans-serif';ctx.fillText((ch>0?'+':'')+ch+'%',b1.x,b1.y-6);}
+          // Bot % inside
+          ctx.fillStyle='white';ctx.font='bold 10px "IBM Plex Sans",sans-serif';ctx.textBaseline='middle';
+          if(b0.height>20)ctx.fillText(monthData[i].botPct+'%',b0.x,b0.y+b0.height/2);
+          // Ag % inside
+          if(b1.height>20)ctx.fillText(monthData[i].agPct+'%',b1.x,b1.y+b1.height/2);
+          ctx.restore();
+        });
+      }
+    }],
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12,padding:12}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{stacked:true,ticks:{font:{size:10}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'},beginAtZero:true}}
+    }
+  });
+}
 function renderHandover(){
   if(!S.botRaw.length&&!S.agRaw.length){show('hov-empty');hide('hov-content');return;}
   hide('hov-empty');show('hov-content');
@@ -1378,12 +1563,15 @@ function renderDashboard(){
   const from=document.getElementById('dFrom').value;
   const to=document.getElementById('dTo').value;
 
-  // Helper: filter raw array by date + exclude B2B/NOC
+  // Helper: filter raw array by date + exclude B2B/NOC + channel filter
   function filterByDate(raw,hdrs){
     const C2=detectCols(hdrs);
+    const selCh=[...S.selChans];
     return raw.filter(r=>{
       if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
       if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      // Channel filter — only apply if this file has channel column
+      if(selCh.length>0&&C2.chan>=0&&!selCh.includes(String(r[C2.chan]||'').trim()))return false;
       return true;
     });
   }
@@ -1416,47 +1604,56 @@ function renderDashboard(){
   const slaClr=socSLApct===null?'var(--muted)':socSLApct>=80?'var(--green)':socSLApct>=60?'var(--amber)':'var(--red)';
 
   document.getElementById('mainKpis').innerHTML=`
-    <div class="kcard" style="border-left-color:var(--p)">
+    <div class="kcard kp">
+      <div class="kcard-icon" style="background:#f5f0fc"><svg viewBox="0 0 18 18" fill="none" stroke="#6B1F7C" stroke-width="1.5"><path d="M2 4a1 1 0 011-1h12a1 1 0 011 1v7a1 1 0 01-1 1H8l-3 2.5V12H3a1 1 0 01-1-1V4z"/></svg></div>
       <div class="klbl">Total</div>
       <div class="kval">${tot.toLocaleString()}</div>
       <div class="ksub">Bot ${botPct}% · Ag ${agPct}%</div>
     </div>
     <div class="kcard kg">
+      <div class="kcard-icon" style="background:#e1f5ee"><svg viewBox="0 0 18 18" fill="none" stroke="#1D9E75" stroke-width="1.5"><rect x="1" y="5" width="16" height="10" rx="2"/><path d="M6 5V3a3 3 0 016 0v2"/><circle cx="6.5" cy="10" r="1" fill="#1D9E75" stroke="none"/><circle cx="11.5" cy="10" r="1" fill="#1D9E75" stroke="none"/></svg></div>
       <div class="klbl">Bot (HH=NO)</div>
       <div class="kval">${botConvs.toLocaleString()}</div>
       <div class="ksub">${botPct}% of total</div>
     </div>
     <div class="kcard kb">
+      <div class="kcard-icon" style="background:#e6f1fb"><svg viewBox="0 0 18 18" fill="none" stroke="#185FA5" stroke-width="1.5"><circle cx="9" cy="6" r="3"/><path d="M3 15c0-3 2.7-5 6-5s6 2 6 5"/></svg></div>
       <div class="klbl">Agent</div>
       <div class="kval">${agConvs.toLocaleString()}</div>
       <div class="ksub">${agPct}% of total</div>
     </div>
     <div class="kcard kr">
+      <div class="kcard-icon" style="background:#fcebeb"><svg viewBox="0 0 18 18" fill="none" stroke="#E24B4A" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l2.5 2"/></svg></div>
       <div class="klbl">Abandoned</div>
       <div class="kval">${p.abCnt||0}</div>
       <div class="ksub">${p.abCnt?'from file':'upload file'}</div>
     </div>
-    <div class="kcard" style="border-left-color:#7F77DD;cursor:pointer" onclick="go('social')">
+    <div class="kcard kgr" style="cursor:pointer" onclick="go('social')">
+      <div class="kcard-icon" style="background:#eeedfe"><svg viewBox="0 0 18 18" fill="none" stroke="#7F77DD" stroke-width="1.5"><circle cx="4" cy="9" r="2.5"/><circle cx="14" cy="4.5" r="2.5"/><circle cx="14" cy="13.5" r="2.5"/><path d="M6.5 8L11.5 5.5M6.5 10L11.5 12.5"/></svg></div>
       <div class="klbl">Social Media</div>
       <div class="kval">${socConvs.toLocaleString()}</div>
       <div class="ksub" style="color:${slaClr}">${socFrtAvg!==null?fmtHMS(socFrtAvg*60)+' FRT':''} ${socSLApct!==null?'·'+socSLApct+'%':''}</div>
     </div>
     <div class="kcard kc">
-      <div class="klbl">⏳ Avg Wait</div>
-      <div class="kval">${p.globalWait!==null?fmtHMS(p.globalWait*60):'—'}</div>
+      <div class="kcard-icon" style="background:#faece7"><svg viewBox="0 0 18 18" fill="none" stroke="#D85A30" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l-2.5 2.5"/></svg></div>
+      <div class="klbl">Avg Wait <span style="font-size:8px;background:#f0ecf5;padding:1px 4px;border-radius:6px;color:var(--p)">≤2min</span></div>
+      <div class="kval" style="color:${p.globalWait!==null?(p.globalWait<=2?'var(--green)':'var(--red)'):'inherit'}">${p.globalWait!==null?fmtHMS(p.globalWait*60):'—'}</div>
       <div class="ksub">wait time</div>
     </div>
     <div class="kcard ka">
-      <div class="klbl">Avg IRT</div>
-      <div class="kval">${p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'}</div>
+      <div class="kcard-icon" style="background:#faeeda"><svg viewBox="0 0 18 18" fill="none" stroke="#BA7517" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l2.5 1.5"/></svg></div>
+      <div class="klbl">Avg IRT <span style="font-size:8px;background:#f0ecf5;padding:1px 4px;border-radius:6px;color:var(--p)">≤1min</span></div>
+      <div class="kval" style="color:${p.globalIrt!==null?(p.globalIrt<=1?'var(--green)':'var(--red)'):'inherit'}">${p.globalIrt!==null?fmtHMS(p.globalIrt*60):'—'}</div>
       <div class="ksub">initial response</div>
     </div>
     <div class="kcard kgr">
-      <div class="klbl">Avg AHT</div>
-      <div class="kval">${p.globalAht!==null?fmtHMS(p.globalAht*60):'—'}</div>
+      <div class="kcard-icon" style="background:#eeedfe"><svg viewBox="0 0 18 18" fill="none" stroke="#7F77DD" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M6 9h6M9 6v6"/></svg></div>
+      <div class="klbl">Avg AHT <span style="font-size:8px;background:#f0ecf5;padding:1px 4px;border-radius:6px;color:var(--p)">≤12min</span></div>
+      <div class="kval" style="color:${p.globalAht!==null?(p.globalAht<=12?'var(--green)':'var(--red)'):'inherit'}">${p.globalAht!==null?fmtHMS(p.globalAht*60):'—'}</div>
       <div class="ksub">start→end</div>
     </div>
     <div class="kcard kg">
+      <div class="kcard-icon" style="background:#e1f5ee"><svg viewBox="0 0 18 18" fill="none" stroke="#1D9E75" stroke-width="1.5"><circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/><path d="M1 15c0-2.5 2.2-4 5-4M17 15c0-2.5-2.2-4-5-4M9 15c0-2.5-1.8-4-4-4"/></svg></div>
       <div class="klbl">Agents</div>
       <div class="kval">${agInPeriod}</div>
       <div class="ksub">unique in period</div>
@@ -1489,36 +1686,44 @@ function renderDashboard(){
   const chans=[...new Set(S.filt.map(r=>C.chan>=0?String(r[C.chan]||'').trim():'').filter(Boolean))];
   document.getElementById('hourChanSel').innerHTML='<button class="fbtn sel" onclick="renderHourly(null,this)">All</button>'+chans.slice(0,5).map(c=>`<button class="fbtn" onclick="renderHourly('${c.replace(/'/g,"\\'")}',this)">${c}</button>`).join('');
   // Ended by + Dept bars
-  // Tags bars on dashboard — build from agent file (has Tags column)
+  // Tags bars — filtered by date + selected channel
   const CA3=S.agHdrs.length?detectCols(S.agHdrs):C;
   const from3=document.getElementById('dFrom').value;const to3=document.getElementById('dTo').value;
+  const selCh=[...S.selChans]; // currently selected channels
   const agFilt3=S.agRaw.filter(r=>{
     if(CA3.bot>=0&&EXCL_DEPTS.test(String(r[CA3.bot]||'')))return false;
     if((from3||to3)&&CA3.date>=0){const d=getDateStr(r[CA3.date]);if(!d)return true;if(from3&&d<from3)return false;if(to3&&d>to3)return false;}
+    if(selCh.length>0&&CA3.chan>=0&&!selCh.includes(String(r[CA3.chan]||'').trim()))return false;
     return true;
   });
   const tagMap3={};
   if(CA3.tag>=0)agFilt3.forEach(r=>{const t=String(r[CA3.tag]||'').trim();if(t&&t!=='-')tagMap3[t]=(tagMap3[t]||0)+1;});
   const tags3=Object.entries(tagMap3).sort((a,b)=>b[1]-a[1]);
+  const tagTitle=selCh.length>0?`Top Tags · ${selCh.join(', ')}`:'Top Tags';
+  // Update the Top Tags card title properly
+  const tagCardTitle=document.querySelector('#dashTagBars')?.closest('.card')?.querySelector('.ct');
+  if(tagCardTitle)tagCardTitle.textContent=tagTitle;
   if(tags3.length){
     const tmx=tags3[0][1];
     document.getElementById('dashTagBars').innerHTML=tags3.slice(0,8).map(([t,c],i)=>
       `<div class="brow"><div class="blbl" title="${t}" style="min-width:130px">${t.length>18?t.slice(0,18)+'…':t}</div><div class="btrk"><div class="bfil" style="width:${Math.round(c/tmx*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${c}</div></div>`
     ).join('');
   }else{
-    document.getElementById('dashTagBars').innerHTML='<div style="font-size:11px;color:var(--faint);padding:8px">No tags data — upload Agent file with Tags column</div>';
+    document.getElementById('dashTagBars').innerHTML='<div style="font-size:11px;color:var(--faint);padding:8px">No tags data for selected filter</div>';
   }
-  // Dept bars — combine bots (from bot file) + agent depts
-  const agDepts=p.agents.reduce((m,[a,n])=>{
-    // find dept for each agent from agData
-    const r=S.agRaw.find(r=>CA2.agent>=0&&String(r[CA2.agent]||'').trim()===a);
-    if(r&&CA2.bot>=0){const d=String(r[CA2.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d))m[d]=(m[d]||0)+n;}
-    return m;
-  },{});
+
+  // Dept bars — count directly from filtered agent + bot data
   const deptMerged={};
-  p.bots.forEach(([b,c])=>{if(!EXCL_DEPTS.test(b))deptMerged[b]=(deptMerged[b]||0)+c;});
-  Object.entries(agDepts).forEach(([d,c])=>{deptMerged[d]=(deptMerged[d]||0)+c;});
-  const deptE=Object.entries(deptMerged).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  // Bot depts
+  const CB2=S.botHdrs.length?detectCols(S.botHdrs):C;
+  S.botRaw.filter(r=>{
+    if(CB2.bot>=0&&EXCL_DEPTS.test(String(r[CB2.bot]||'')))return false;
+    if((from3||to3)&&CB2.date>=0){const d=getDateStr(r[CB2.date]);if(!d)return true;if(from3&&d<from3)return false;if(to3&&d>to3)return false;}
+    return true;
+  }).forEach(r=>{if(CB2.bot>=0){const d=String(r[CB2.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d))deptMerged[d]=(deptMerged[d]||0)+1;}});
+  // Agent depts
+  agFilt3.forEach(r=>{if(CA3.bot>=0){const d=String(r[CA3.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d))deptMerged[d]=(deptMerged[d]||0)+1;}});
+  const deptE=Object.entries(deptMerged).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const dmax=deptE[0]?deptE[0][1]:1;
   document.getElementById('deptBars').innerHTML=deptE.length?deptE.map(([b,c],i)=>`<div class="brow"><div class="blbl" title="${b}">${b}</div><div class="btrk"><div class="bfil" style="width:${Math.round(c/dmax*100)}%;background:${BC[i%BC.length]}"></div></div><div class="bval">${c}</div></div>`).join(''):'<div style="font-size:11px;color:var(--faint);padding:5px">No department data</div>';
   // Badges
@@ -1530,29 +1735,31 @@ function renderDashboard(){
 
 function renderSLAGrid(p){
   const CA=S.agHdrs.length?detectCols(S.agHdrs):S.cols;
-  const frtThresh=5;
-  const pubFrt=CA.frt>=0?p.pubData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  // KPI Targets
+  const PUB_TARGET=7;   // 7 min SLA for Public
+  const PRI_TARGET=8;   // 8 min SLA for Private
+  const pubFrt=CA.frt>=0?p.pubData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>0):[];
   const pubAvgFrt=avg(pubFrt);
-  const pubSLApct=pubFrt.length?Math.round(pubFrt.filter(v=>v<=frtThresh).length/pubFrt.length*100):null;
-  const pubClr=pubAvgFrt===null?'var(--muted)':pubAvgFrt<=3?'var(--green)':pubAvgFrt<=8?'var(--amber)':'var(--red)';
-  const priFrt=CA.frt>=0?p.priData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>=0):[];
+  const pubSLApct=pubFrt.length?Math.round(pubFrt.filter(v=>v<=PUB_TARGET).length/pubFrt.length*100):null;
+  const pubClr=pubAvgFrt===null?'var(--muted)':pubAvgFrt<=PUB_TARGET?'var(--green)':'var(--red)';
+  const priFrt=CA.frt>=0?p.priData.map(r=>toMins(r[CA.frt])).filter(v=>!isNaN(v)&&v>0):[];
   const priAvgFrt=avg(priFrt);
-  const priSLApct=priFrt.length?Math.round(priFrt.filter(v=>v<=frtThresh).length/priFrt.length*100):null;
-  const priClr=priAvgFrt===null?'var(--muted)':priAvgFrt<=3?'var(--green)':priAvgFrt<=8?'var(--amber)':'var(--red)';
+  const priSLApct=priFrt.length?Math.round(priFrt.filter(v=>v<=PRI_TARGET).length/priFrt.length*100):null;
+  const priClr=priAvgFrt===null?'var(--muted)':priAvgFrt<=PRI_TARGET?'var(--green)':'var(--red)';
   document.getElementById('slaGrid').innerHTML=`
     <div class="sla-item" onclick="go('social')">
       <div class="sla-lbl">🔓 Public</div>
       <div class="sla-sub">Instagram Comments · Facebook Comments</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">Avg FRT</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Avg FRT <span style="background:#f0f0f0;padding:1px 6px;border-radius:10px;font-weight:700">Target ≤${PUB_TARGET}min</span></div>
       <div class="sla-val" style="color:${pubClr}">${pubAvgFrt!==null?fmtHMS(pubAvgFrt*60):'—'}</div>
-      <div class="sla-channels">${pubSLApct!==null?pubSLApct+'% within '+frtThresh+'min SLA · '+p.pubData.length+' chats':'No FRT data'}</div>
+      <div class="sla-channels">${pubSLApct!==null?`<span style="color:${pubSLApct>=80?'var(--green)':'var(--red)'};font-weight:700">${pubSLApct}%</span> within ${PUB_TARGET}min · ${p.pubData.length} chats`:'No FRT data'}</div>
     </div>
     <div class="sla-item" onclick="go('social')">
       <div class="sla-lbl">🔒 Private</div>
       <div class="sla-sub">Instagram DM · Messenger</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">Avg FRT</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Avg FRT <span style="background:#f0f0f0;padding:1px 6px;border-radius:10px;font-weight:700">Target ≤${PRI_TARGET}min</span></div>
       <div class="sla-val" style="color:${priClr}">${priAvgFrt!==null?fmtHMS(priAvgFrt*60):'—'}</div>
-      <div class="sla-channels">${priSLApct!==null?priSLApct+'% within '+frtThresh+'min SLA · '+p.priData.length+' chats':'No FRT data'}</div>
+      <div class="sla-channels">${priSLApct!==null?`<span style="color:${priSLApct>=80?'var(--green)':'var(--red)'};font-weight:700">${priSLApct}%</span> within ${PRI_TARGET}min · ${p.priData.length} chats`:'No FRT data'}</div>
     </div>`;
 }
 
@@ -1566,17 +1773,168 @@ function renderHourly(filterChan,btn){
   if(filterChan&&C.chan>=0)data=data.filter(r=>String(r[C.chan]||'').trim()===filterChan);
   if(S.charts.hour)S.charts.hour.destroy();
   const lbl=document.getElementById('hourLbl');
+
+  // Abandoned hourly (filtered by date)
+  const abHrs=new Array(24).fill(0);
+  if(S.abRaw.length){
+    const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+    S.abRaw.forEach(r=>{
+      if(abDtI<0)return;
+      const n=Number(r[abDtI]);let d;
+      if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+      if(!d)return;
+      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if(from&&ds<from)return;if(to&&ds>to)return;
+      abHrs[d.getHours()]++;
+    });
+  }
+  const hasAb=abHrs.some(v=>v>0);
+
   if(useH){
     const hrs=new Array(24).fill(0);
     data.forEach(r=>{const h=getHour(r[C.date]);if(h>=0)hrs[h]++;});
-    if(lbl)lbl.textContent=`Hourly breakdown${filterChan?' · '+filterChan:''}`;
-    const mx=Math.max(...hrs.filter(v=>v>0),1);
-    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'bar',data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets:[{data:hrs,backgroundColor:hrs.map(v=>v===mx&&v>0?'#6B1F7C':'rgba(107,31,124,.35)'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});
+    if(lbl)lbl.textContent=`Hourly breakdown${filterChan?' · '+filterChan:''}${hasAb?' · 🔴 Abandoned':''}`;
+    const datasets=[{
+      label:'Conversations',data:hrs,
+      backgroundColor:'rgba(107,31,124,.45)',
+      hoverBackgroundColor:'#6B1F7C',
+      borderRadius:4,borderSkipped:false,
+      order:2
+    }];
+    if(hasAb)datasets.push({
+      label:'Abandoned',data:abHrs,
+      backgroundColor:'rgba(226,75,74,.9)',
+      hoverBackgroundColor:'#c03030',
+      borderColor:'#E24B4A',
+      borderWidth:1,
+      borderRadius:4,borderSkipped:false,
+      order:1,
+      datalabels:{
+        display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,
+        color:'#E24B4A',
+        font:{size:9,weight:'bold'},
+        anchor:'end',align:'top',
+        formatter:v=>v>0?v:''
+      }
+    });
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{
+      type:'bar',
+      data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:hasAb,position:'top',labels:{font:{size:11},boxWidth:11,padding:10}},
+          tooltip:{callbacks:{
+            afterBody:items=>{
+              const hr=items[0].dataIndex;
+              const ab=abHrs[hr];
+              const conv=hrs[hr];
+              return ab>0?[`Abandoned: ${ab}  |  Conv: ${conv}`]:[];
+            }
+          }}
+        },
+        scales:{
+          x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},
+          y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}
+        }
+      }
+    });
+    // Shift summary: conversations + abandoned per shift
+    const sumEl=document.getElementById('abHourSummary');
+    if(sumEl){
+      const cs1=hrs.slice(0,8).reduce((a,b)=>a+b,0);
+      const cs2=hrs.slice(8,16).reduce((a,b)=>a+b,0);
+      const cs3=hrs.slice(16,24).reduce((a,b)=>a+b,0);
+      const as1=abHrs.slice(0,8).reduce((a,b)=>a+b,0);
+      const as2=abHrs.slice(8,16).reduce((a,b)=>a+b,0);
+      const as3=abHrs.slice(16,24).reduce((a,b)=>a+b,0);
+      sumEl.style.display='flex';
+      sumEl.innerHTML=`
+        <span style="font-size:10px;font-weight:700;color:var(--muted);align-self:center;margin-right:4px">Shifts:</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌙 00–08: <strong>${cs1}</strong>${hasAb?` · 🔴${as1}`:''}</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">☀️ 08–16: <strong>${cs2}</strong>${hasAb?` · 🔴${as2}`:''}</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌆 16–00: <strong>${cs3}</strong>${hasAb?` · 🔴${as3}`:''}</span>
+        ${hasAb?`<span style="padding:3px 10px;background:#E24B4A;color:white;border-radius:20px;font-size:10px;font-weight:700">🔴 Abandoned Total: ${as1+as2+as3}</span>`:''}`;
+    }
   }else{
     const d={};data.forEach(r=>{const dt=getDateStr(r[C.date]);if(dt)d[dt]=(d[dt]||0)+1;});
+    const abDaily={};
+    if(S.abRaw.length){
+      const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+      S.abRaw.forEach(r=>{
+        if(abDtI<0)return;
+        const n=Number(r[abDtI]);let dd;
+        if(!isNaN(n)&&n>1e12)dd=new Date(n);else dd=parseDate(r[abDtI]);
+        if(!dd)return;
+        const ds=`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
+        if(from&&ds<from)return;if(to&&ds>to)return;
+        abDaily[ds]=(abDaily[ds]||0)+1;
+      });
+    }
     const s=Object.keys(d).sort();if(!s.length)return;
-    if(lbl)lbl.textContent=`Daily trend${filterChan?' · '+filterChan:''}`;
-    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'line',data:{labels:s.map(x=>x.slice(5)),datasets:[{data:s.map(x=>d[x]),borderColor:'#6B1F7C',backgroundColor:'rgba(107,31,124,.07)',borderWidth:2,pointRadius:s.length<14?3:1,fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxTicksLimit:14},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});
+    if(lbl)lbl.textContent=`Daily trend${filterChan?' · '+filterChan:''}${hasAb?' · 🔴 Abandoned':''}`;
+    const datasets=[{
+      label:'Conversations',
+      data:s.map(x=>d[x]),
+      borderColor:'#6B1F7C',
+      backgroundColor:'rgba(107,31,124,.07)',
+      borderWidth:2,
+      pointRadius:4,
+      pointBackgroundColor:'#6B1F7C',
+      pointBorderColor:'white',
+      pointBorderWidth:2,
+      fill:true,
+      tension:.3,
+      order:2
+    }];
+    if(Object.keys(abDaily).length)datasets.push({
+      label:'Abandoned',
+      data:s.map(x=>abDaily[x]||0),
+      borderColor:'#E24B4A',
+      backgroundColor:'rgba(226,75,74,.07)',
+      borderWidth:2,
+      pointRadius:3,
+      pointBackgroundColor:'#E24B4A',
+      pointBorderColor:'white',
+      pointBorderWidth:1,
+      fill:true,
+      tension:.3,
+      order:1
+    });
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{
+      type:'line',
+      data:{labels:s.map(x=>x.slice(5)),datasets},
+      plugins:[{
+        id:'pointLabels',
+        afterDraw(chart){
+          const ctx=chart.ctx;
+          chart.data.datasets.forEach((ds,di)=>{
+            if(di>0)return; // only conversations dataset
+            const meta=chart.getDatasetMeta(di);
+            meta.data.forEach((pt,i)=>{
+              const v=ds.data[i];if(!v)return;
+              ctx.save();
+              ctx.font='bold 10px "IBM Plex Sans",sans-serif';
+              ctx.fillStyle='#4a1060';
+              ctx.textAlign='center';ctx.textBaseline='bottom';
+              ctx.fillText(v.toLocaleString(),pt.x,pt.y-5);
+              ctx.restore();
+            });
+          });
+        }
+      }],
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:Object.keys(abDaily).length>0,position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},
+          tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`}}
+        },
+        scales:{
+          x:{ticks:{font:{size:9},maxTicksLimit:14},grid:{display:false}},
+          y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}
+        }
+      }
+    });
   }
 }
 
@@ -1996,7 +2354,34 @@ function doSearch(){
 function clearSrc(){document.getElementById('srcI').value='';document.getElementById('srcRes').innerHTML='';show('srcEmp');}
 
 // ══ CHART HELPERS ═════════════════════════════════════════════════════
-function mkDonut(id,labels,data,colors){if(S.charts[id])S.charts[id].destroy();if(!data.filter(v=>v>0).length)return;S.charts[id]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8,boxWidth:9,boxHeight:9}}}}});}
+function mkDonut(id,labels,data,colors){
+  if(S.charts[id])S.charts[id].destroy();
+  if(!data.filter(v=>v>0).length)return;
+  const total=data.reduce((a,b)=>a+b,0);
+  S.charts[id]=new Chart(document.getElementById(id),{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{
+        legend:{
+          position:'right',
+          labels:{
+            font:{size:11},padding:10,boxWidth:10,boxHeight:10,
+            generateLabels:chart=>{
+              return chart.data.labels.map((l,i)=>{
+                const v=chart.data.datasets[0].data[i];
+                const pct=total>0?Math.round(v/total*100):0;
+                return{text:`${l}  ${v.toLocaleString()} (${pct}%)`,fillStyle:colors[i],strokeStyle:'#fff',lineWidth:1,hidden:false,index:i};
+              });
+            }
+          }
+        },
+        tooltip:{callbacks:{label:ctx=>{const v=ctx.parsed;const pct=total>0?Math.round(v/total*100):0;return` ${ctx.label}: ${v.toLocaleString()} (${pct}%)`;}}}
+      }
+    }
+  });
+}
 function mkBar(id,labels,data,colors){if(S.charts[id])S.charts[id].destroy();if(!data.length)return;const c=colors||BC;S.charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[{data,backgroundColor:c,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}}}});}
 
 // ══ DATA SNAPSHOT ═════════════════════════════════════════════════════
