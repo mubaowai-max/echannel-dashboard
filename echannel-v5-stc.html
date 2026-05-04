@@ -290,22 +290,25 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .hov-print:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
 .hov-shifts-info{font-size:11px;opacity:.65;text-align:right;line-height:1.7;position:relative;z-index:1}
 @media print{
-  .sb,.topbar,.cfbar,.hov-print,.page:not(#page-handover){display:none!important}
-  #page-handover{display:block!important;padding:0!important}
-  .main{margin-left:0!important;padding:0!important}
   body{background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .hov-header,.hov-shift-inner,.hov-shift-time,.hov-sec-cell{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .hov-table{font-size:10px!important}
-  .hov-dl,.hov-dc{padding:5px 8px!important;font-size:10px!important}
-  .hov-shift-inner{padding:6px 4px!important;font-size:10px!important}
-  .hov-shift-time{padding:3px 4px 5px!important;font-size:9px!important}
-  .hov-sec-cell{padding:5px 10px!important;font-size:9px!important}
-  .hov-header{padding:12px 16px!important;margin-bottom:10px!important;border-radius:8px!important}
-  .hov-title{font-size:14px!important}
-  .hov-dc.big{font-size:13px!important}
-  .hov-dc.big.tot{font-size:14px!important}
-  * {page-break-inside: avoid}
-  @page{margin:8mm;size:A4 portrait}
+  /* Hide nav always */
+  .sb,.topbar,.cfbar,.hov-print,.deptbar,#deptbar,button{display:none!important}
+  /* Show only the right page */
+  body[data-print="handover"] .page:not(#page-handover){display:none!important}
+  body[data-print="dashboard"] .page:not(#page-dashboard){display:none!important}
+  body[data-print] .main{margin-left:0!important}
+  /* Handover styles */
+  .hov-header,.hov-shift-inner,.hov-shift-time,.hov-sec-cell,.hov-sec-row>div{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #page-handover .hov-table{zoom:0.75}
+  .hov-dl{padding:3px 5px!important;font-size:7.5px!important}
+  .hov-dc{padding:3px 4px!important;font-size:7.5px!important}
+  .hov-col-cat{padding:4px 6px!important;font-size:7.5px!important}
+  .hov-shift-inner{padding:4px 5px!important;font-size:8px!important}
+  .hov-shift-time{padding:2px 3px!important;font-size:7px!important}
+  .hov-sec-cell{padding:3px 6px!important;font-size:7px!important}
+  .hov-header{padding:8px 12px!important;margin-bottom:5px!important}
+  .hov-title{font-size:11px!important}
+  @page{margin:4mm;size:A4 landscape}
 }
 @media(max-width:900px){.kg8,.kg4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}.ll{display:none}.cwrap{grid-template-columns:1fr}.sb{display:none}.main{margin-left:0}}
 </style>
@@ -425,6 +428,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
         <input type="file" id="agXL" class="xinp" accept=".xlsx,.xls,.csv" multiple>
         <input type="file" id="abXL" class="xinp" accept=".xlsx,.xls,.csv" multiple>
         <div class="tbtn danger" id="clrBtn" style="display:none" onclick="clearAll()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l10 10M12 2L2 12"/></svg>Clear</div>
+        <div class="tbtn" id="xlBtn" style="display:none;background:#1D9E75;color:white;border-color:#1D9E75" onclick="showXlMenu()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h10v10H2zM5 2v10M2 5h10M2 8h10"/></svg>⬇ Excel</div>
+        <div id="xlMenu" style="display:none;position:absolute;top:42px;right:100px;background:white;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;padding:6px;min-width:160px">
+          <div onclick="downloadExcel('filt');hideXlMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:12px;font-weight:600" onmouseover="this.style.background='#f5f0fc'" onmouseout="this.style.background=''">📊 Current View</div>
+          <div onclick="downloadExcel('agent');hideXlMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:12px;font-weight:600" onmouseover="this.style.background='#f5f0fc'" onmouseout="this.style.background=''">👤 Agent Data</div>
+          <div onclick="downloadExcel('bot');hideXlMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:12px;font-weight:600" onmouseover="this.style.background='#f5f0fc'" onmouseout="this.style.background=''">🤖 Bot Data</div>
+          <div onclick="downloadExcel('abandoned');hideXlMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:12px;font-weight:600" onmouseover="this.style.background='#f5f0fc'" onmouseout="this.style.background=''">🔴 Abandoned Data</div>
+          <div onclick="downloadExcel('handover');hideXlMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:12px;font-weight:600" onmouseover="this.style.background='#f5f0fc'" onmouseout="this.style.background=''">📋 Handover Report</div>
+        </div>
         <div class="tbtn" onclick="openApiMov()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="7" r="3"/><path d="M8 5.5H13M11 4v3"/></svg>API</div>
       </div>
     </div>
@@ -433,6 +444,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
     <div class="cfbar" id="cfbar">
       <span class="fbar-lbl">Channel:</span>
       <div id="chanFiltBtns" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+    </div>
+    <div class="cfbar" id="deptbar" style="gap:8px;align-items:center">
+      <span class="fbar-lbl">Source:</span>
+      <button class="fbtn sel" id="srcBtnBot" onclick="setSource('bot')">🤖 Bot</button>
+      <button class="fbtn sel" id="srcBtnAgent" onclick="setSource('agent')">👤 Agent</button>
+      <span class="fbar-lbl" style="margin-left:8px">Dept:</span>
+      <div id="deptFiltBtns" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+      <button class="fbtn clr" id="deptClrBtn" onclick="clearDeptF()" style="display:none">✕ Clear</button>
     </div>
 
     <!-- UPLOAD PAGE -->
@@ -540,8 +559,11 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
               <div>Shift 2: 08:00 – 16:00</div>
               <div>Shift 3: 16:00 – 00:00</div>
             </div>
-            <div class="hov-print" onclick="window.print()">
-              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>Print / Save PDF
+            <div class="hov-print" onclick="exportHandoverExcel()">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M2 2h10v10H2zM5 2v10M2 5h10M2 8h10"/></svg>⬇ Excel
+            </div>
+            <div class="hov-print" onclick="printHandover()">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>PDF
             </div>
           </div>
         </div>
@@ -559,7 +581,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
             <div class="hov-title">📅 eChannels Monthly Report</div>
             <div class="hov-date">WhatsApp &amp; Web — Monthly KPIs &amp; Volume</div>
           </div>
-          <div class="hov-print" onclick="window.print()">
+          <div class="hov-print" onclick="printHandover()">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>Print / Save PDF
           </div>
         </div>
@@ -590,6 +612,15 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
         </div>
       </div>
       <div id="d-content" style="display:none">
+        <!-- Download bar -->
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+          <button onclick="downloadDashPDF()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#E24B4A;color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9v3h8V9"/></svg>⬇ PDF
+          </button>
+          <button onclick="downloadDashExcel()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#1D9E75;color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M2 2h10v10H2zM5 2v10M2 5h10M2 8h10"/></svg>⬇ Excel
+          </button>
+        </div>
         <!-- KPI row: Total | Bot | Abandoned | Wait | IRT | FRT | AHT | Agents -->
         <div class="kg8" id="mainKpis"></div>
         <!-- Dept filter chips -->
@@ -777,17 +808,37 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 </div>
 
 <script>
+window.addEventListener('error',e=>{console.error('JS Error:',e.message,'at',e.filename,'line',e.lineno);});
+window.addEventListener('unhandledrejection',e=>{console.error('Promise Error:',e.reason);});
 // ══ CONSTANTS ═════════════════════════════════════════════════════════
 const EXCL_DEPTS=/(b2b|noc)/i;
 const SOCIAL_PUBLIC=['Instagram Comments','Facebook Comments'];
 const SOCIAL_PRIVATE=['Instagram DM','Messenger'];
 const SOCIAL_ALL=[...SOCIAL_PUBLIC,...SOCIAL_PRIVATE,'Google Map Comments','Youtube Comments','Google Playstore Review','App Store Review','Social media','Social Media Facebook DM'];
+
+// Returns true if row should be excluded (blank dept, B2B, NOC)
+function isExcluded(r,C2){
+  if(!C2)return false;
+  // If no dept column in this file, don't exclude
+  if(C2.bot<0)return false;
+  const dept=String(r[C2.bot]||'').trim();
+  // Exclude blank department
+  if(!dept||dept.toLowerCase()==='nan')return true;
+  // Exclude B2B and NOC
+  if(EXCL_DEPTS.test(dept))return true;
+  return false;
+}
+// Returns true if row is a social media channel
+function isSocial(r,C2){
+  if(!C2||C2.chan<0)return false;
+  return SOCIAL_ALL.map(s=>s.toLowerCase()).includes(String(r[C2.chan]||'').trim().toLowerCase());
+}
 const BC=['#6B1F7C','#1D9E75','#378ADD','#D85A30','#D4537E','#BA7517','#639922','#E24B4A','#185FA5','#0F6E56','#7F77DD','#C84DB5'];
 const TS=[{bg:'#EEEDFE',t:'#3C3489'},{bg:'#E1F5EE',t:'#085041'},{bg:'#E6F1FB',t:'#0C447C'},{bg:'#FAECE7',t:'#712B13'},{bg:'#FBEAF0',t:'#72243E'},{bg:'#FAEEDA',t:'#633806'},{bg:'#EAF3DE',t:'#27500A'},{bg:'#FCEBEB',t:'#791F1F'}];
 
 // ══ AUTH ══════════════════════════════════════════════════════════════
 const AUTH={
-  users:JSON.parse(localStorage.getItem('eck_u')||'null')||[{name:'Admin User',username:'admin',password:'admin@123'}],
+  users:(()=>{try{return JSON.parse(localStorage.getItem('eck_u')||'null')||[{name:'Admin User',username:'admin',password:'admin@123'}];}catch(e){return [{name:'Admin User',username:'admin',password:'admin@123'}];}})(),
   ap:localStorage.getItem('eck_ap')||'admin123',current:null,
   save(){localStorage.setItem('eck_u',JSON.stringify(this.users))}
 };
@@ -797,6 +848,7 @@ function doLogin(){
   const usr=AUTH.users.find(x=>x.username.toLowerCase()===u&&x.password===p);
   if(!usr){showLE('Invalid username or password');return;}
   AUTH.current=usr;
+  localStorage.setItem('eck_session',JSON.stringify({username:usr.username,ts:Date.now()}));
   document.getElementById('LS').style.display='none';
   document.getElementById('AS').style.display='block';
   document.getElementById('ucNm').textContent=usr.name;
@@ -806,11 +858,28 @@ function doLogin(){
 }
 function doLogout(){
   AUTH.current=null;
+  localStorage.removeItem('eck_session');
   document.getElementById('AS').style.display='none';
   document.getElementById('LS').style.display='flex';
-  // Reset to upload page for next login
   go('upload');
 }
+// Restore session on page load
+(function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('eck_session')||'null');
+    if(!s)return;
+    // Session expires after 12 hours
+    if(Date.now()-s.ts>12*60*60*1000){localStorage.removeItem('eck_session');return;}
+    const usr=AUTH.users.find(x=>x.username===s.username);
+    if(!usr)return;
+    AUTH.current=usr;
+    document.getElementById('LS').style.display='none';
+    document.getElementById('AS').style.display='block';
+    document.getElementById('ucNm').textContent=usr.name;
+    document.getElementById('ucAv').textContent=usr.name[0].toUpperCase();
+    loadSaved();
+  }catch(e){}
+})();
 function showLE(m){const e=document.getElementById('lerr');document.getElementById('lerrmsg').textContent=m;e.style.display='flex';}
 function clearLE(){document.getElementById('lerr').style.display='none';}
 function toggleEye(){const i=document.getElementById('lpass');i.type=i.type==='password'?'text':'password';}
@@ -1005,6 +1074,7 @@ function mergeAndProcess(){
   // Stay on upload page — don't auto-navigate
   document.getElementById('clrBtn').style.display='flex';
   document.getElementById('upBdg').style.display='none';
+  const xlBtn=document.getElementById('xlBtn');if(xlBtn)xlBtn.style.display='flex';
   // Show "Go to Dashboard" button prominently
   const su=document.getElementById('uploadStatus');if(su)su.style.display='block';
   updateUploadStatus();
@@ -1036,11 +1106,9 @@ function loadSaved(){
       document.getElementById('clrBtn').style.display='flex';
       document.getElementById('upBdg').style.display='none';
       updateUploadStatus();
-      go('dashboard'); // has data → go to dashboard
-    }else{
-      go('upload'); // no data → go to upload
     }
-  }catch(e){go('upload');}
+  }catch(e){}
+  go('upload'); // Always go to Upload page on login
 }
 
 // ══ COLUMN DETECT ═════════════════════════════════════════════════════
@@ -1063,17 +1131,23 @@ function detectCols(hdrs){
 
 // ══ FILTERS ═══════════════════════════════════════════════════════════
 function applyF(){
-  if(!S.raw.length)return; // no data, nothing to filter
-  const from=document.getElementById('dFrom').value; // YYYY-MM-DD
+  if(!S.raw.length)return;
+  const from=document.getElementById('dFrom').value;
   const to=document.getElementById('dTo').value;
-  const C=S.cols;let data=[...S.raw];
-  // always exclude NOC + B2B
-  if(C&&C.bot>=0)data=data.filter(r=>!EXCL_DEPTS.test(String(r[C.bot]||'')));
-  // date filter using smart parser
+  const C=S.cols;
+  const src=window.S_SOURCE||'all';
+  let data=[];
+  // Source filter
+  if(src==='bot')data=[...S.botRaw];
+  else if(src==='agent')data=[...S.agRaw];
+  else data=[...S.raw];
+  // Exclude blank dept, B2B, NOC (only for rows that have dept column)
+  if(C)data=data.filter(r=>!isExcluded(r,C));
+  // date filter
   if((from||to)&&C&&C.date>=0){
     data=data.filter(r=>{
       const d=getDateStr(r[C.date]);
-      if(!d)return true;
+      if(!d||d==='NaN')return true;
       if(from&&d<from)return false;
       if(to&&d>to)return false;
       return true;
@@ -1082,8 +1156,7 @@ function applyF(){
   if(S.selChans.size>0&&C&&C.chan>=0)data=data.filter(r=>S.selChans.has(String(r[C.chan]||'').trim()));
   if(S.selDepts.size>0&&C&&C.bot>=0)data=data.filter(r=>S.selDepts.has(String(r[C.bot]||'').trim()));
   S.filt=data;
-  if(S.parsed||S.raw.length)recompute();
-  // Also re-render abandoned with new date filter
+  if(S.raw.length)recompute();
   if(S.abRaw.length)renderAbandoned();
 }
 
@@ -1091,10 +1164,10 @@ function applyF(){
 function process(){
   S.cols=detectCols();
   const C=S.cols;
-  // remove NOC + B2B
-  if(C.bot>=0)S.filt=S.filt.filter(r=>!EXCL_DEPTS.test(String(r[C.bot]||'')));
+  // Remove blank dept, B2B, NOC from filt
+  S.filt=S.filt.filter(r=>!isExcluded(r,C));
   // set default dates from data
-  const allDates=S.raw.filter(r=>C.date>=0&&!EXCL_DEPTS.test(String(r[C.bot]||''))).map(r=>getDateStr(r[C.date])).filter(Boolean).sort();
+  const allDates=S.raw.filter(r=>!isExcluded(r,C)&&C.date>=0).map(r=>getDateStr(r[C.date])).filter(Boolean).sort();
   if(allDates.length){
     if(!document.getElementById('dTo').value)document.getElementById('dTo').value=allDates[allDates.length-1];
     if(!document.getElementById('dFrom').value){const y25=allDates.find(d=>d>='2025-01-01');document.getElementById('dFrom').value=y25||allDates[0];}
@@ -1127,15 +1200,18 @@ function recompute(){
     const selCh=[...S.selChans];
     const selDp=[...S.selDepts];
     return rows.filter(r=>{
-      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      // Exclude blank dept, B2B, NOC
+      if(isExcluded(r,C2))return false;
       if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
       if(selCh.length>0&&C2.chan>=0&&!selCh.includes(String(r[C2.chan]||'').trim()))return false;
       if(selDp.length>0&&C2.bot>=0&&!selDp.includes(String(r[C2.bot]||'').trim()))return false;
       return true;
     });
   }
-  const agData=S.agRaw.length?dateFilter(S.agRaw,S.agHdrs):[];
-  const botData=S.botRaw.length?dateFilter(S.botRaw,S.botHdrs):[];
+  const src=window.S_SOURCE||'all';
+  const agDataAll=(src==='bot')?[]:(S.agRaw.length?dateFilter(S.agRaw,S.agHdrs):[]);  // all agent rows incl. social
+  const agData=agDataAll.filter(r=>!isSocial(r,CA));               // agent rows excl. social (for KPIs)
+  const botData=(src==='agent')?[]:(S.botRaw.length?dateFilter(S.botRaw,S.botHdrs):[]);
 
   // IRT / AHT / Wait — only from WhatsApp + Web (non-social channels)
   const WW_CHANS=['whatsapp','web'];
@@ -1181,16 +1257,44 @@ function recompute(){
   agData.forEach(r=>{if(CA.chan>=0){const c=String(r[CA.chan]||'').trim();if(c&&!EXCL_DEPTS.test(String(r[CA.bot]||'')))chanMap[c]=(chanMap[c]||0)+1;}});
   const chans=Object.entries(chanMap).sort((a,b)=>b[1]-a[1]);
 
-  // Language & prePostPaid from all data
-  const langMap={ar:0,en:0,other:0};
-  allData.forEach(r=>{
+  // Language & prePostPaid — use raw data filtered by date ONLY (no dept filter)
+  // Because language/prepost is customer info, not dept-dependent
+  function dateOnlyFilter(rows,hdrs){
+    const C2=detectCols(hdrs);
+    const selCh=[...S.selChans];
+    const selDp=[...S.selDepts];
+    return rows.filter(r=>{
+      if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      if(selCh.length>0&&C2.chan>=0&&!selCh.includes(String(r[C2.chan]||'').trim()))return false;
+      if(selDp.length>0&&C2.bot>=0&&!selDp.includes(String(r[C2.bot]||'').trim()))return false;
+      return true;
+    });
+  }
+  // Language & prePostPaid — strictly respect source selection
+  const agRawDateFilt=(src==='bot')?[]:(S.agRaw.length?dateFilter(S.agRaw,S.agHdrs):[]);
+  const botRawDateFilt=(src==='agent')?[]:(S.botRaw.length?dateOnlyFilter(S.botRaw,S.botHdrs):[]);
+  const allRawData=[...botRawDateFilt,...agRawDateFilt];
+
+  // Language — show all, blank = Non-STC
+  const langMap={ar:0,en:0,other:0,nonstc:0};
+  allRawData.forEach(r=>{
     const lI=C.lang>=0?C.lang:(CA.lang>=0?CA.lang:-1);
-    if(lI>=0){const l=String(r[lI]||'').toLowerCase().trim();if(l==='ar')langMap.ar++;else if(l==='en')langMap.en++;else if(l)langMap.other++;}
+    if(lI<0)return;
+    const l=String(r[lI]||'').toLowerCase().trim();
+    if(!l||l==='nan')langMap.nonstc++;
+    else if(l==='ar')langMap.ar++;
+    else if(l==='en')langMap.en++;
+    else langMap.other++;
   });
-  const ppMap={pre:0,post:0,other:0};
-  allData.forEach(r=>{
+  // Pre/Post — show all, blank = Non-STC
+  const ppMap={pre:0,post:0,nonstc:0};
+  allRawData.forEach(r=>{
     const ppI=C.prepost>=0?C.prepost:(CA.prepost>=0?CA.prepost:-1);
-    if(ppI>=0){const v=String(r[ppI]||'').toUpperCase().trim();if(v==='POST')ppMap.post++;else if(v==='PREP'||v==='PRE')ppMap.pre++;else ppMap.other++;}
+    if(ppI<0)return;
+    const v=String(r[ppI]||'').toUpperCase().trim();
+    if(!v||v==='NAN')ppMap.nonstc++;
+    else if(v==='POST')ppMap.post++;
+    else if(v==='PREP'||v==='PRE')ppMap.pre++;
   });
 
   // Bot details
@@ -1204,22 +1308,24 @@ function recompute(){
   });
 
   // Social from agData
-  const socData=agData.filter(r=>CA.chan>=0&&SOCIAL_ALL.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
-  const pubData=agData.filter(r=>CA.chan>=0&&SOCIAL_PUBLIC.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
-  const priData=agData.filter(r=>CA.chan>=0&&SOCIAL_PRIVATE.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+  const socData=agDataAll.filter(r=>CA.chan>=0&&SOCIAL_ALL.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+  const pubData=agDataAll.filter(r=>CA.chan>=0&&SOCIAL_PUBLIC.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
+  const priData=agDataAll.filter(r=>CA.chan>=0&&SOCIAL_PRIVATE.map(s=>s.toLowerCase()).includes(String(r[CA.chan]||'').trim().toLowerCase()));
 
-  // Abandoned count filtered by date
-  const abDtI=S.abHdrs.length?S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date')):-1;
-  let abCnt=S.abRaw.length;
-  if(abDtI>=0&&(from||to)){
-    abCnt=S.abRaw.filter(r=>{
-      const n=Number(r[abDtI]);let d;
-      if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+  // Abandoned count — use same logic as renderAbandoned for consistency
+  function filterAbByDate(rows){
+    if(!S.abHdrs.length)return rows;
+    const dtI=S.abHdrs.map(h=>String(h||'').toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+    if(dtI<0||(!(from||to)))return rows;
+    return rows.filter(r=>{
+      const n=Number(r[dtI]);let d;
+      if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[dtI]);
       if(!d)return true;
       const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       if(from&&ds<from)return false;if(to&&ds>to)return false;return true;
-    }).length;
+    });
   }
+  const abCnt=filterAbByDate(S.abRaw).length;
   const agentsInRange=agents.length;
 
   S.parsed={bots,agents,tags,chans,langMap,ppMap,abCnt,botDet,socData,pubData,priData,agentsInRange,
@@ -1242,18 +1348,62 @@ function recompute(){
 }
 
 // ══ CHANNEL FILTER BAR ════════════════════════════════════════════════
+// Source selection: Set of selected sources
+if(!window.S_SOURCES)window.S_SOURCES=new Set(['bot','agent']);
+
+function setSource(src){
+  if(window.S_SOURCES.has(src)){
+    // Don't allow deselecting if it's the only one selected
+    if(window.S_SOURCES.size>1)window.S_SOURCES.delete(src);
+  }else{
+    window.S_SOURCES.add(src);
+  }
+  document.getElementById('srcBtnBot').classList.toggle('sel',window.S_SOURCES.has('bot'));
+  document.getElementById('srcBtnAgent').classList.toggle('sel',window.S_SOURCES.has('agent'));
+  // Keep backward compat
+  window.S_SOURCE=window.S_SOURCES.has('bot')&&window.S_SOURCES.has('agent')?'all':
+    window.S_SOURCES.has('bot')?'bot':'agent';
+  S.selDepts=new Set();
+  buildCFBar();
+  applyF();
+}
+
 function buildCFBar(){
   const C=S.cols;
-  const chans=[...new Set(S.raw.filter(r=>C.bot<0||!EXCL_DEPTS.test(String(r[C.bot]||''))).map(r=>C.chan>=0?String(r[C.chan]||'').trim():'').filter(Boolean))].sort();
-  if(!chans.length){document.getElementById('cfbar').classList.remove('show');return;}
-  document.getElementById('cfbar').classList.add('show');
-  document.getElementById('chanFiltBtns').innerHTML=
-    chans.map(c=>`<button class="fbtn${S.selChans.has(c)?' sel':''}" onclick="togChan('${c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"> ${c}</button>`).join('')+
-    (S.selChans.size?'<button class="fbtn clr" onclick="clearAllF()">✕ Clear</button>':'');
+  const CA_cf=detectCols(S.agHdrs);
+  const CB_cf=detectCols(S.botHdrs);
+  // Get channels from Agent + Bot Channel columns
+  const chanSet=new Set();
+  if(CA_cf.chan>=0)S.agRaw.forEach(r=>{const c=String(r[CA_cf.chan]||'').trim();if(c)chanSet.add(c);});
+  if(CB_cf.chan>=0)S.botRaw.forEach(r=>{const c=String(r[CB_cf.chan]||'').trim();if(c)chanSet.add(c);});
+  const chans=[...chanSet].sort();
+  if(!chans.length){document.getElementById('cfbar').classList.remove('show');}
+  else{
+    document.getElementById('cfbar').classList.add('show');
+    document.getElementById('chanFiltBtns').innerHTML=
+      chans.map(c=>`<button class="fbtn${S.selChans.has(c)?' sel':''}" onclick="togChan('${c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"> ${c}</button>`).join('')+
+      (S.selChans.size?'<button class="fbtn clr" onclick="clearAllF()">✕ Clear</button>':'');
+  }
+  // Dept bar — always show when data is loaded
+  const deptbar=document.getElementById('deptbar');
+  if(!S.raw.length){deptbar.classList.remove('show');return;}
+  deptbar.classList.add('show');
+  const src=window.S_SOURCE||'all';
+  const CA_d=detectCols(S.agHdrs);const CB_d=detectCols(S.botHdrs);
+  let deptRows=[];
+  if(src==='bot'||src==='all')S.botRaw.forEach(r=>{if(CB_d.bot>=0){const d=String(r[CB_d.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d)&&d.toLowerCase()!=='nan')deptRows.push(d);}});
+  if(src==='agent'||src==='all')S.agRaw.forEach(r=>{if(CA_d.bot>=0){const d=String(r[CA_d.bot]||'').trim();if(d&&!EXCL_DEPTS.test(d)&&d.toLowerCase()!=='nan')deptRows.push(d);}});
+  const depts=[...new Set(deptRows)].sort();
+  document.getElementById('deptFiltBtns').innerHTML=depts.map(d=>
+    `<button class="fbtn${S.selDepts.has(d)?' sel':''}" onclick="togDept('${d.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">  ${d.length>22?d.slice(0,22)+'…':d}</button>`
+  ).join('');
+  const clr=document.getElementById('deptClrBtn');if(clr)clr.style.display=S.selDepts.size?'inline-flex':'none';
 }
+
 function togChan(c){c=c.trim();if(S.selChans.has(c))S.selChans.delete(c);else S.selChans.add(c);applyF();buildCFBar();}
 function clearAllF(){S.selChans=new Set();S.selDepts=new Set();applyF();buildCFBar();}
-function togDept(d){d=d.trim();if(S.selDepts.has(d))S.selDepts.delete(d);else S.selDepts.add(d);applyF();renderDashboard();}
+function clearDeptF(){S.selDepts=new Set();buildCFBar();applyF();}
+function togDept(d){d=d.trim();if(S.selDepts.has(d))S.selDepts.delete(d);else S.selDepts.add(d);buildCFBar();applyF();}
 
 // ══ QUICK DATE ════════════════════════════════════════════════════════
 function localDate(d){
@@ -1293,10 +1443,12 @@ function go(name){
   document.querySelectorAll('.ni').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+name+"'"))n.classList.add('active');});
   const T={upload:'Upload Files',dashboard:'Dashboard',handover:'Handover Report',monthly:'Monthly Report',bots:'Bots',social:'Social Media',abandoned:'Abandoned Chat',agents:'Agents',speed:'IRT / FRT / AHT',tags:'Tags',search:'Search Customer',bot:'Excel Bot',data:'Raw Data'};
   document.getElementById('pgT').textContent=T[name]||name;
+  // Keep toolbar updated on every page
+  if(S.raw.length)buildCFBar();
 }
 
 // ══ RENDER ALL ════════════════════════════════════════════════════════
-function renderAll(){renderDashboard();renderBots();renderSocial();renderAgents();renderTags();renderSpeed();renderRawData();renderHandover();renderMonthly();}
+function renderAll(){renderAbandoned();renderDashboard();renderBots();renderSocial();renderAgents();renderTags();renderSpeed();renderRawData();renderHandover();renderMonthly();}
 
 // ══ MONTHLY REPORT ════════════════════════════════════════════════════
 function renderMonthly(){
@@ -1445,7 +1597,7 @@ function renderHandover(){
 
   function filterDate(rows,C2){
     return rows.filter(r=>{
-      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      if(isExcluded(r,C2))return false; // blank dept, B2B, NOC
       if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
       return true;
     });
@@ -1509,46 +1661,103 @@ function renderHandover(){
     </div>`;
   }
 
+  // ── Agent WW only (no social, no blank dept) ──
+  const agWWRows=SHIFTS.map(s=>byShift(agF,CA,s.h).filter(r=>{
+    if(CA.chan<0)return true;
+    const ch=String(r[CA.chan]||'').toLowerCase().trim();
+    return ch.includes('whatsapp')||ch.includes('web');
+  }));
+  const agWWTotals=agWWRows.map(r=>r.length);
+  // ppCount for WW agent rows
+  function ppCountWW(rows,type){
+    const ppIdx=CA.prepost>=0?CA.prepost:-1;if(ppIdx<0)return'—';
+    if(type==='post')return rows.filter(r=>String(r[ppIdx]||'').toUpperCase()==='POST').length;
+    if(type==='prep')return rows.filter(r=>['PREP','PRE'].includes(String(r[ppIdx]||'').toUpperCase())).length;
+    if(type==='nonstc')return rows.filter(r=>!String(r[ppIdx]||'').trim()).length;
+    return'—';
+  }
+  // % Overall for bot and agent
+  const botGrandTotal=botTotals[3]||1;
+  const agGrandTotal=agWWTotals[3]||1;
+  // Abandoned per shift
+  const abDtI=S.abHdrs.map(h=>String(h||'').toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+  const abPhoneI=S.abHdrs.map(h=>String(h||'').toLowerCase()).findIndex(h=>h.includes('phone'));
+  const abF=S.abRaw.filter(r=>{
+    if(abDtI<0)return true;
+    const n=Number(r[abDtI]);let d;if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+    if(!d)return true;
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(from&&ds<from)return false;if(to&&ds>to)return false;return true;
+  });
+  function abByShift(hours){
+    if(!hours)return abF.length;
+    return abF.filter(r=>{
+      if(abDtI<0)return false;
+      const n=Number(r[abDtI]);let d;if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+      return d&&hours.includes(d.getHours());
+    }).length;
+  }
+  const abShift=SHIFTS.map(s=>abByShift(s.h));
+
+  // Top Tags
+  function topTags(rows,C2,n=5){
+    if(C2.tag<0)return[];
+    const m={};rows.forEach(r=>{const t=String(r[C2.tag]||'').trim();if(t&&t!=='-')m[t]=(m[t]||0)+1;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n);
+  }
+  const wwAgAll=agF.filter(r=>{if(CA.chan<0)return true;const ch=String(r[CA.chan]||'').toLowerCase().trim();return ch.includes('whatsapp')||ch.includes('web');});
+  const socAll=agF.filter(r=>{if(CA.chan<0)return false;const sc=SOCIAL_ALL.map(s=>s.toLowerCase());return sc.includes(String(r[CA.chan]||'').trim().toLowerCase());});
+  const wwTags=topTags(wwAgAll,CA,5);
+  const socTags=topTags(socAll,CA,5);
+
   // Build HTML
   let html=`<div class="hov-table">
-    <!-- Column headers -->
     <div class="hov-col-head">
       <div class="hov-col-cat">Category</div>
       <div class="hov-shift-head"><div class="hov-shift-inner s1-bg">🌙 Shift 1</div><div class="hov-shift-time s1-bg">00:00 – 08:00</div></div>
       <div class="hov-shift-head"><div class="hov-shift-inner s2-bg">☀️ Shift 2</div><div class="hov-shift-time s2-bg">08:00 – 16:00</div></div>
       <div class="hov-shift-head"><div class="hov-shift-inner s3-bg">🌆 Shift 3</div><div class="hov-shift-time s3-bg">16:00 – 00:00</div></div>
-      <div class="hov-shift-head"><div class="hov-shift-inner tot-bg">⭐ Overall</div><div class="hov-shift-time tot-bg">Total</div></div>
+      <div class="hov-shift-head"><div class="hov-shift-inner tot-bg">⭐ Overall</div><div class="hov-shift-time tot-bg">Total · %</div></div>
     </div>
 
-    <!-- ═ BOT ═ -->
     ${secRow('🤖','HANDLED BY BOT','sec-bot')}
-    ${dataRow('WhatsApp / Web',botRows.map((r,i)=>botTotals[i]),true)}
+    ${dataRow('WhatsApp / Web',botRows.map((r,i)=>i===3?`<strong>${botTotals[i]}</strong> <span style="color:#BA7517;font-size:10px">${botGrandTotal?(Math.round(botTotals[i]/(botGrandTotal+agGrandTotal)*100))+'%':''}</span>`:botTotals[i]),true)}
     ${dataRow('Postpaid',botRows.map(r=>ppCount(r,'post')))}
     ${dataRow('Prepaid',botRows.map(r=>ppCount(r,'prep')))}
     ${dataRow('Non-STC',botRows.map(r=>ppCount(r,'nonstc')))}
 
-    <!-- ═ AGENT ═ -->
     ${secRow('👤','HANDLED BY AGENTS','sec-agent')}
-    ${dataRow('WhatsApp / Web Chats',agRows.map((_,i)=>agTotals[i]),true)}
-    ${dataRow('Avg Wait Time',agRows.map(r=>avgHMS(r,CA,CA.wait)),false,true)}
-    ${dataRow('Avg Session Duration',agRows.map(r=>avgHMS(r,CA,CA.ahtDur>=0?CA.ahtDur:-1)),false,true)}
-    ${dataRow('Avg IRT',agRows.map(r=>avgHMS(r,CA,CA.irt)),false,true)}
-    ${dataRow('Avg FRT',agRows.map(r=>avgHMS(r,CA,CA.frt)),false,true)}
+    ${dataRow('WhatsApp / Web Chats',agWWRows.map((r,i)=>i===3?`<strong>${agWWTotals[i]}</strong> <span style="color:#BA7517;font-size:10px">${agGrandTotal?(Math.round(agWWTotals[i]/(botGrandTotal+agGrandTotal)*100))+'%':''}</span>`:agWWTotals[i]),true)}
+    ${dataRow('Avg Wait Time',agWWRows.map(r=>avgHMS(r,CA,CA.wait)),false,true)}
+    ${dataRow('Avg Session Duration',agWWRows.map(r=>avgHMS(r,CA,CA.ahtDur>=0?CA.ahtDur:-1)),false,true)}
+    ${dataRow('Avg IRT',agWWRows.map(r=>avgHMS(r,CA,CA.irt)),false,true)}
+    ${dataRow('Avg FRT',agWWRows.map(r=>avgHMS(r,CA,CA.frt)),false,true)}
+    ${dataRow('🔴 Abandoned Chats',SHIFTS.map((_,i)=>`<span style="color:#E24B4A;font-weight:700">${abShift[i]}</span>`),false,false)}
 
-    <!-- ═ SOCIAL ═ -->
     ${secRow('📱','SOCIAL MEDIA','sec-social')}
     ${SOC_CHANS.map(ch=>dataRow(ch,agRows.map(r=>{if(CA.chan<0)return'—';return r.filter(x=>String(x[CA.chan]||'').trim()===ch).length||0;}))).join('')}
     ${dataRow('Total Social Chats',agRows.map(r=>{if(CA.chan<0)return'—';const sc=SOCIAL_ALL.map(s=>s.toLowerCase());return r.filter(x=>sc.includes(String(x[CA.chan]||'').trim().toLowerCase())).length;}),true)}
     ${dataRow('Avg FRT (Social)',agRows.map(r=>{const sc=SOCIAL_ALL.map(s=>s.toLowerCase());const sr=r.filter(x=>CA.chan>=0&&sc.includes(String(x[CA.chan]||'').trim().toLowerCase()));return avgHMS(sr,CA,CA.frt);}),false,true)}
 
-    <!-- ═ SUMMARY ═ -->
-    ${secRow('📊','SUMMARY','sec-summary')}
-    ${dataRow('Non-STC',agRows.map(r=>ppCount(r,'nonstc')))}
-    ${dataRow('Postpaid',agRows.map(r=>ppCount(r,'post')))}
-    ${dataRow('Prepaid',agRows.map(r=>ppCount(r,'prep')))}
-    ${(()=>{const vals=agRows.map(r=>{const p=ppCount(r,'post');const pr=ppCount(r,'prep');const n=ppCount(r,'nonstc');return[p,pr,n].every(v=>v==='—')?'—':(p==='—'?0:p)+(pr==='—'?0:pr)+(n==='—'?0:n);});return dataRow('Total',vals,true);})()}
-    ${dataRow('Arabic',agRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='ar').length;}))}
-    ${dataRow('English',agRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='en').length;}))}
+    ${secRow('📊','SUMMARY — WhatsApp & Web','sec-summary')}
+    ${dataRow('Non-STC',agWWRows.map(r=>ppCountWW(r,'nonstc')))}
+    ${dataRow('Postpaid',agWWRows.map(r=>ppCountWW(r,'post')))}
+    ${dataRow('Prepaid',agWWRows.map(r=>ppCountWW(r,'prep')))}
+    ${(()=>{const vals=agWWRows.map(r=>{const p=ppCountWW(r,'post');const pr=ppCountWW(r,'prep');const n=ppCountWW(r,'nonstc');return[p,pr,n].every(v=>v==='—')?'—':(p==='—'?0:p)+(pr==='—'?0:pr)+(n==='—'?0:n);});return dataRow('Total',vals,true);})()}
+    ${dataRow('Arabic',agWWRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='ar').length;}))}
+    ${dataRow('English',agWWRows.map(r=>{if(CA.lang<0)return'—';return r.filter(x=>String(x[CA.lang]||'').toLowerCase()==='en').length;}))}
+
+    <!-- Top Tags -->
+    <div class="hov-sec-row"><div class="hov-sec-cell sec-agent" style="grid-column:1/-1">🏷️ TOP REASON — WhatsApp & Web</div></div>
+    <div class="hov-data-row" style="background:#f9f7fc">
+      <div class="hov-dl" style="font-weight:700">TAG</div>
+      ${wwTags.map(([t,c])=>`<div class="hov-dc" style="font-size:10px"><div style="font-weight:700">${t}</div><div style="color:var(--p)">${c}</div></div>`).join('')}
+    </div>
+    <div class="hov-sec-row"><div class="hov-sec-cell sec-social" style="grid-column:1/-1">🏷️ TOP REASON — Social Media</div></div>
+    <div class="hov-data-row" style="background:#f9f7fc">
+      <div class="hov-dl" style="font-weight:700">TAG</div>
+      ${socTags.map(([t,c])=>`<div class="hov-dc" style="font-size:10px"><div style="font-weight:700">${t}</div><div style="color:#7F77DD">${c}</div></div>`).join('')}
+    </div>
   </div>`;
 
   document.getElementById('hovTable').innerHTML=html;
@@ -1568,16 +1777,18 @@ function renderDashboard(){
     const C2=detectCols(hdrs);
     const selCh=[...S.selChans];
     return raw.filter(r=>{
-      if(C2.bot>=0&&EXCL_DEPTS.test(String(r[C2.bot]||'')))return false;
+      if(isExcluded(r,C2))return false; // blank dept, B2B, NOC
       if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
-      // Channel filter — only apply if this file has channel column
       if(selCh.length>0&&C2.chan>=0&&!selCh.includes(String(r[C2.chan]||'').trim()))return false;
       return true;
     });
   }
 
   const botFiltered = S.botRaw.length ? filterByDate(S.botRaw, S.botHdrs) : [];
-  const agFiltered  = S.agRaw.length  ? filterByDate(S.agRaw,  S.agHdrs)  : [];
+  const CA_dash=detectCols(S.agHdrs);
+  const agFilteredAll = S.agRaw.length ? filterByDate(S.agRaw, S.agHdrs) : [];
+  // Agent: exclude social media channels for agent KPIs
+  const agFiltered = agFilteredAll.filter(r=>!isSocial(r,CA_dash));
   const botConvs = botFiltered.length;
   const agConvs  = agFiltered.length;
 
@@ -1593,10 +1804,50 @@ function renderDashboard(){
     return new Set(agFiltered.map(r=>String(r[ai]||'').trim()).filter(Boolean)).size;
   })();
 
+  // Count blank-dept rows for highlights
+  const CA2=S.agHdrs.length?detectCols(S.agHdrs):C;
+  const WW=['whatsapp','web'];
+  const SOC_CHANS=SOCIAL_ALL.map(s=>s.toLowerCase());
+  // Filter by date only (no dept exclusion) to count blanks
+  const agAllNoDeptFilter=S.agRaw.filter(r=>{
+    if((from||to)&&CA2.date>=0){const d=getDateStr(r[CA2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+    return true;
+  });
+  const blankWWRows=agAllNoDeptFilter.filter(r=>{
+    const dept=CA2.bot>=0?String(r[CA2.bot]||'').trim():'x';
+    const chan=CA2.chan>=0?String(r[CA2.chan]||'').toLowerCase().trim():'';
+    return(!dept||dept.toLowerCase()==='nan')&&WW.some(w=>chan.includes(w));
+  });
+  const blankDeptSoc=agAllNoDeptFilter.filter(r=>{
+    const dept=CA2.bot>=0?String(r[CA2.bot]||'').trim():'x';
+    const chan=CA2.chan>=0?String(r[CA2.chan]||'').toLowerCase().trim():'';
+    return(!dept||dept.toLowerCase()==='nan')&&SOC_CHANS.some(w=>chan.includes(w));
+  }).length;
+
+  // Match phone numbers between blank-dept WW agent rows and Abandoned file
+  let handledCount=0;
+  if(S.abRaw.length&&S.abHdrs.length&&blankWWRows.length){
+    const abPhoneI=S.abHdrs.map(h=>String(h||'').toLowerCase()).findIndex(h=>h.includes('phone'));
+    const agPhoneI=CA2.cust>=0?CA2.cust:S.agHdrs.map(h=>String(h||'').toLowerCase()).findIndex(h=>h.includes('phone'));
+    if(abPhoneI>=0&&agPhoneI>=0){
+      // Build set of phones from abandoned file (date filtered)
+      const abPhones=new Set(S.abRaw.filter(r=>{
+        if((from||to)){
+          const dtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+          if(dtI>=0){const n=Number(r[dtI]);let d;if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[dtI]);
+            if(d){const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              if(from&&ds<from)return false;if(to&&ds>to)return false;}}
+        }return true;
+      }).map(r=>String(r[abPhoneI]||'').trim()).filter(Boolean));
+      // Count how many blank-dept WW rows have phone in abandoned
+      handledCount=blankWWRows.filter(r=>abPhones.has(String(r[agPhoneI]||'').trim())).length;
+    }
+  }
+  const reOpenedCount=blankWWRows.length-handledCount;
+
   // Social from p.socData (already filtered by agent data in recompute)
   const socConvs=p.socData.length;
   // Social FRT SLA using agent cols
-  const CA2=S.agHdrs.length?detectCols(S.agHdrs):C;
   const frtThresh=5;
   const socFrtVals=CA2.frt>=0?p.socData.map(r=>toMins(r[CA2.frt])).filter(v=>!isNaN(v)&&v>=0):[];
   const socFrtAvg=avg(socFrtVals);
@@ -1620,19 +1871,25 @@ function renderDashboard(){
       <div class="kcard-icon" style="background:#e6f1fb"><svg viewBox="0 0 18 18" fill="none" stroke="#185FA5" stroke-width="1.5"><circle cx="9" cy="6" r="3"/><path d="M3 15c0-3 2.7-5 6-5s6 2 6 5"/></svg></div>
       <div class="klbl">Agent</div>
       <div class="kval">${agConvs.toLocaleString()}</div>
-      <div class="ksub">${agPct}% of total</div>
+      ${reOpenedCount>0
+        ?`<div class="ksub" style="color:var(--amber);font-weight:700">⚠️ ${reOpenedCount} re-opened</div>`
+        :`<div class="ksub">${agPct}% of total</div>`}
     </div>
     <div class="kcard kr">
       <div class="kcard-icon" style="background:#fcebeb"><svg viewBox="0 0 18 18" fill="none" stroke="#E24B4A" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l2.5 2"/></svg></div>
       <div class="klbl">Abandoned</div>
       <div class="kval">${p.abCnt||0}</div>
-      <div class="ksub">${p.abCnt?'from file':'upload file'}</div>
+      ${handledCount>0
+        ?`<div class="ksub" style="color:var(--green);font-weight:700">✅ ${handledCount} handled</div>`
+        :`<div class="ksub">${p.abCnt?'from file':'upload file'}</div>`}
     </div>
     <div class="kcard kgr" style="cursor:pointer" onclick="go('social')">
       <div class="kcard-icon" style="background:#eeedfe"><svg viewBox="0 0 18 18" fill="none" stroke="#7F77DD" stroke-width="1.5"><circle cx="4" cy="9" r="2.5"/><circle cx="14" cy="4.5" r="2.5"/><circle cx="14" cy="13.5" r="2.5"/><path d="M6.5 8L11.5 5.5M6.5 10L11.5 12.5"/></svg></div>
       <div class="klbl">Social Media</div>
       <div class="kval">${socConvs.toLocaleString()}</div>
-      <div class="ksub" style="color:${slaClr}">${socFrtAvg!==null?fmtHMS(socFrtAvg*60)+' FRT':''} ${socSLApct!==null?'·'+socSLApct+'%':''}</div>
+      ${blankDeptSoc>0
+        ?`<div class="ksub" style="color:var(--amber);font-weight:700">⚠️ ${blankDeptSoc} follow-up</div>`
+        :`<div class="ksub" style="color:${slaClr}">${socFrtAvg!==null?fmtHMS(socFrtAvg*60)+' FRT':''} ${socSLApct!==null?'·'+socSLApct+'%':''}</div>`}
     </div>
     <div class="kcard kc">
       <div class="kcard-icon" style="background:#faece7"><svg viewBox="0 0 18 18" fill="none" stroke="#D85A30" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l-2.5 2.5"/></svg></div>
@@ -1665,19 +1922,60 @@ function renderDashboard(){
     ...S.agRaw.map(r=>CA2.bot>=0?String(r[CA2.bot]||'').trim():'')
   ].filter(d=>d&&!EXCL_DEPTS.test(d));
   const depts=[...new Set(allDepts)].sort();
+  // Clear DEPT chips — now handled by toolbar only
   const df=document.getElementById('dDeptF');
-  df.innerHTML=depts.length?`<span style="font-size:9px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-right:4px">DEPT:</span>`+
-    depts.map(d=>`<button class="fbtn${S.selDepts.has(d)?' sel':''}" onclick="togDept('${d.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}');" title="${d}">${d.length>22?d.slice(0,22)+'…':d}</button>`).join('')+
-    (S.selDepts.size?`<button class="fbtn clr" onclick="clearAllF()">✕</button>`:''): '';
-  // Language chart — only show non-zero values
-  const langVals=[['Arabic',p.langMap.ar],['English',p.langMap.en],['Other',p.langMap.other]].filter(([,v])=>v>0);
-  if(langVals.length)mkDonut('langChart',langVals.map(e=>e[0]),langVals.map(e=>e[1]),['#6B1F7C','#378ADD','#BA7517'].slice(0,langVals.length));
-  // PrePostPaid chart
-  if(p.ppMap&&(p.ppMap.pre||p.ppMap.post)){
-    mkDonut('ppChart',
-      [['POST',p.ppMap.post],['PREP',p.ppMap.pre],['Other',p.ppMap.other]].filter(([,v])=>v>0).map(e=>e[0]),
-      [['POST',p.ppMap.post],['PREP',p.ppMap.pre],['Other',p.ppMap.other]].filter(([,v])=>v>0).map(e=>e[1]),
-      ['#1D9E75','#6B1F7C','#BA7517']);
+  if(df)df.innerHTML='';
+
+  // Language & Pre/Post — recalculate from current filtered data (respects source + dept + date)
+  const src2=window.S_SOURCE||'all';
+  // Get the right raw data based on source
+  const CA_LC=detectCols(S.agHdrs);const CB_LC=detectCols(S.botHdrs);
+  function getRawFiltered(rows,hdrs){
+    const C3=detectCols(hdrs);
+    return rows.filter(r=>{
+      if(isExcluded(r,C3))return false;
+      if((from||to)&&C3.date>=0){const d=getDateStr(r[C3.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      if(S.selChans.size>0&&C3.chan>=0&&!S.selChans.has(String(r[C3.chan]||'').trim()))return false;
+      if(S.selDepts.size>0&&C3.bot>=0&&!S.selDepts.has(String(r[C3.bot]||'').trim()))return false;
+      return true;
+    });
+  }
+  const botF2=(src2==='agent')?[]:getRawFiltered(S.botRaw,S.botHdrs);
+  // For lang/pp charts: exclude social media from agent rows
+  const agF2=(src2==='bot')?[]:getRawFiltered(S.agRaw,S.agHdrs).filter(r=>!isSocial(r,CA_LC));
+  const allF2=[...botF2,...agF2];
+
+  // Language chart — use correct col index per source
+  const lm={ar:0,en:0,other:0,nonstc:0};
+  botF2.forEach(r=>{
+    const lI=CB_LC.lang;if(lI<0)return;
+    const l=String(r[lI]||'').toLowerCase().trim();
+    if(!l||l==='nan')lm.nonstc++;else if(l==='ar')lm.ar++;else if(l==='en')lm.en++;else lm.other++;
+  });
+  agF2.forEach(r=>{
+    const lI=CA_LC.lang;if(lI<0)return;
+    const l=String(r[lI]||'').toLowerCase().trim();
+    if(!l||l==='nan')lm.nonstc++;else if(l==='ar')lm.ar++;else if(l==='en')lm.en++;else lm.other++;
+  });
+  const langVals=[['Arabic',lm.ar],['English',lm.en],['Other',lm.other],['Non-STC',lm.nonstc]].filter(([,v])=>v>0);
+  mkDonut('bLangC',langVals.map(e=>e[0]),langVals.map(e=>e[1]),['#6B1F7C','#378ADD','#BA7517','#aaaaaa'].slice(0,langVals.length));
+  if(langVals.length)mkDonut('langChart',langVals.map(e=>e[0]),langVals.map(e=>e[1]),['#6B1F7C','#378ADD','#BA7517','#aaaaaa'].slice(0,langVals.length));
+
+  // Pre/Post chart — use correct col index per source
+  const pm={post:0,pre:0,nonstc:0};
+  botF2.forEach(r=>{
+    const ppI=CB_LC.prepost;if(ppI<0)return;
+    const v=String(r[ppI]||'').toUpperCase().trim();
+    if(!v||v==='NAN')pm.nonstc++;else if(v==='POST')pm.post++;else if(v==='PREP'||v==='PRE')pm.pre++;
+  });
+  agF2.forEach(r=>{
+    const ppI=CA_LC.prepost;if(ppI<0)return;
+    const v=String(r[ppI]||'').toUpperCase().trim();
+    if(!v||v==='NAN')pm.nonstc++;else if(v==='POST')pm.post++;else if(v==='PREP'||v==='PRE')pm.pre++;
+  });
+  if(pm.post||pm.pre||pm.nonstc){
+    const ppVals=[['POST',pm.post],['PREP',pm.pre],['Non-STC',pm.nonstc]].filter(([,v])=>v>0);
+    mkDonut('ppChart',ppVals.map(e=>e[0]),ppVals.map(e=>e[1]),['#1D9E75','#6B1F7C','#aaaaaa'].slice(0,ppVals.length));
   }
   // SLA grid — social channels
   renderSLAGrid(p);
@@ -2146,7 +2444,6 @@ function renderAbandoned(){
   hide('ab-empty');show('ab-content');
   const h=S.abHdrs;
   const cI=col(['channel','platform'],h),dI=col(['department'],h),dtI=col(['chat request time','date'],h),langI=col(['language'],h),ppI=col(['prepospaid','prepostpaid'],h),nmI=col(['name'],h),phI=col(['phone'],h);
-  // Apply date filter from topbar to abandoned data using Chat Request Time
   const from=document.getElementById('dFrom').value;
   const to=document.getElementById('dTo').value;
   let data=S.abRaw.filter(r=>!EXCL_DEPTS.test(String(r[dI>=0?dI:0]||'')));
@@ -2177,6 +2474,8 @@ function renderAbandoned(){
     <div class="kcard kb"><div class="klbl">English</div><div class="kval">${byL.en}</div><div class="ksub">en</div></div>`;
   setV('abBdg',tot);document.getElementById('abBdg').style.display='inline';
   setV('abRCnt',tot.toLocaleString()+' rows');
+  // Sync filtered count back to parsed so Dashboard KPI matches
+  if(S.parsed)S.parsed.abCnt=tot;
   // Charts
   const cE=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
   mkDonut('abChanC',cE.slice(0,6).map(e=>e[0]),cE.slice(0,6).map(e=>e[1]),cE.slice(0,6).map((_,i)=>BC[i]));
@@ -2416,6 +2715,100 @@ function saveAK(){S.apiKey=document.getElementById('apiI').value.trim();localSto
 document.getElementById('apiMov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeApiMov();});
 
 // ══ CLEAR ═════════════════════════════════════════════════════════════
+// ══ DOWNLOAD EXCEL ════════════════════════════════════════════════════
+function downloadExcel(type){
+  let data=[], hdrs=[], fname='export';
+  if(type==='agent'){data=S.agRaw;hdrs=S.agHdrs;fname='Agent_Data';}
+  else if(type==='bot'){data=S.botRaw;hdrs=S.botHdrs;fname='Bot_Data';}
+  else if(type==='abandoned'){data=S.abRaw;hdrs=S.abHdrs;fname='Abandoned_Data';}
+  else if(type==='filt'){data=S.filt;hdrs=S.hdrs;fname='Filtered_Data';}
+  else if(type==='handover'){exportHandoverExcel();return;}
+  if(!data.length){alert('No data to export');return;}
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  const ws=XLSX.utils.aoa_to_sheet([hdrs,...data]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Data');
+  const dt=from&&to?`_${from}_to_${to}`:'';
+  XLSX.writeFile(wb,`${fname}${dt}.xlsx`);
+}
+
+function exportHandoverExcel(){
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  const wb=XLSX.utils.book_new();
+  const allRows=[];
+  const dateStr=document.getElementById('hovDate')?.textContent||from||new Date().toISOString().slice(0,10);
+  allRows.push(['eChannels Daily Handover Report','','','',dateStr]);
+  allRows.push([]);
+  allRows.push(['Category','00:00-08:00','08:00-16:00','16:00-00:00','Overall']);
+  const tbl=document.getElementById('hovTable');
+  if(tbl){
+    tbl.querySelectorAll('.hov-sec-row,.hov-data-row').forEach(row=>{
+      if(row.classList.contains('hov-sec-row')){
+        const lbl=row.querySelector('.hov-sec-cell')?.textContent?.trim().replace(/[🤖👤📱📊🏷️]/g,'').trim();
+        if(lbl){allRows.push([lbl,'','','','']);}
+      }else{
+        const cells=[...row.querySelectorAll('.hov-dl,.hov-dc')];
+        if(cells.length){
+          allRows.push(cells.map(c=>{
+            const t=c.textContent.trim().replace(/\s+/g,' ');
+            // Try to parse as number
+            const clean=t.replace(/[,]/g,'');
+            const n=Number(clean);
+            if(!isNaN(n)&&clean!=='')return n;
+            return t;
+          }));
+        }
+      }
+    });
+  }
+  const ws=XLSX.utils.aoa_to_sheet(allRows);
+  ws['!cols']=[{wch:32},{wch:16},{wch:16},{wch:16},{wch:16}];
+  // Style header rows (optional basic formatting)
+  XLSX.utils.book_append_sheet(wb,ws,'Handover Report');
+  XLSX.writeFile(wb,`Handover_${dateStr.replace(/[^0-9-]/g,'_')}.xlsx`);
+}
+
+function printHandover(){
+  document.body.setAttribute('data-print','handover');
+  window.print();
+  setTimeout(()=>document.body.removeAttribute('data-print'),800);
+}
+
+function downloadDashPDF(){
+  document.body.setAttribute('data-print','dashboard');
+  window.print();
+  setTimeout(()=>document.body.removeAttribute('data-print'),800);
+}
+
+function downloadDashExcel(){
+  const p=S.parsed;if(!p){alert('No data');return;}
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  const rows=[];
+  // KPIs
+  rows.push(['eChannel Dashboard Export']);
+  rows.push(['Date Range', from&&to?`${from} to ${to}`:'All']);
+  rows.push([]);
+  rows.push(['Metric','Value','Sub-info']);
+  document.querySelectorAll('#mainKpis .kcard').forEach(card=>{
+    const lbl=card.querySelector('.klbl')?.textContent?.trim().replace(/[≤⏳]/g,'').trim();
+    const val=card.querySelector('.kval')?.textContent?.trim();
+    const sub=card.querySelector('.ksub')?.textContent?.trim()||'';
+    if(lbl&&val)rows.push([lbl,val,sub]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:22},{wch:14},{wch:24}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'KPI Summary');
+  XLSX.writeFile(wb,`Dashboard_KPI_${from||'all'}.xlsx`);
+}
+
+function showXlMenu(){const m=document.getElementById('xlMenu');m.style.display=m.style.display==='none'?'block':'none';}
+function hideXlMenu(){const m=document.getElementById('xlMenu');if(m)m.style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('#xlBtn')&&!e.target.closest('#xlMenu'))hideXlMenu();});
+
 function clearAll(){
   S.raw=[];S.hdrs=[];S.filt=[];S.parsed=null;S.chatHist=[];S.selChans=new Set();S.selDepts=new Set();
   S.botRaw=[];S.botHdrs=[];S._botFiles=[];S._botRawParts=[];
