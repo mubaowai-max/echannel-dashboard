@@ -640,6 +640,28 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
           <div class="cw" style="height:155px"><canvas id="hourChart" role="img" aria-label="Hourly">Hourly</canvas></div>
           <div id="abHourSummary" style="display:none;margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"></div>
         </div>
+
+        <!-- Pre/Post/Non-STC Trend Chart -->
+        <div class="card" style="margin-bottom:10px">
+          <div class="chdr" style="align-items:flex-start">
+            <div><div class="ct">Pre vs Post vs Non-STC</div><div class="cs" id="ppLbl">Trend by subscription type</div></div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">
+              <div style="display:flex;gap:4px" id="ppChanSel">
+                <button class="fbtn sel" onclick="renderPPChart(null,this)">All</button>
+                <button class="fbtn" onclick="renderPPChart('WhatsApp',this)">WhatsApp</button>
+                <button class="fbtn" onclick="renderPPChart('Web',this)">Web</button>
+              </div>
+              <div style="display:flex;gap:4px;margin-left:8px" id="ppTypeSel">
+                <button class="fbtn sel pp-type" onclick="togglePPType('POST',this)">POST</button>
+                <button class="fbtn sel pp-type" onclick="togglePPType('PREP',this)">PREP</button>
+                <button class="fbtn sel pp-type" onclick="togglePPType('NONSTC',this)">Non-STC</button>
+              </div>
+            </div>
+          </div>
+          <div class="cw" style="height:155px"><canvas id="ppChart2" role="img" aria-label="PrePost">PrePost</canvas></div>
+          <div id="ppSummary" style="display:none;margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"></div>
+        </div>
+        </div>
         <!-- Row 3: Ended by + Dept -->
         <div class="g2" style="margin-bottom:10px">
           <div class="card"><div class="chdr"><div class="ct">Top Tags</div><div class="cs">Most common conversation topics</div></div><div id="dashTagBars"></div></div>
@@ -1981,6 +2003,7 @@ function renderDashboard(){
   renderSLAGrid(p);
   // Hourly traffic
   renderHourly(null);
+  renderPPChart(null);
   const chans=[...new Set(S.filt.map(r=>C.chan>=0?String(r[C.chan]||'').trim():'').filter(Boolean))];
   document.getElementById('hourChanSel').innerHTML='<button class="fbtn sel" onclick="renderHourly(null,this)">All</button>'+chans.slice(0,5).map(c=>`<button class="fbtn" onclick="renderHourly('${c.replace(/'/g,"\\'")}',this)">${c}</button>`).join('');
   // Ended by + Dept bars
@@ -2066,173 +2089,240 @@ function renderHourly(filterChan,btn){
   const C=S.cols;if(!C||C.date<0)return;
   const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
   const daysDiff=from&&to?Math.round((new Date(to)-new Date(from))/(1000*86400)):99;
-  const useH=daysDiff<=2;
+  // Mode: hourly (≤2 days), daily (≤60 days), monthly (>60 days)
+  const mode=daysDiff<=2?'hourly':daysDiff<=60?'daily':'monthly';
   let data=S.filt;
   if(filterChan&&C.chan>=0)data=data.filter(r=>String(r[C.chan]||'').trim()===filterChan);
   if(S.charts.hour)S.charts.hour.destroy();
   const lbl=document.getElementById('hourLbl');
 
-  // Abandoned hourly (filtered by date)
-  const abHrs=new Array(24).fill(0);
-  if(S.abRaw.length){
-    const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
-    S.abRaw.forEach(r=>{
-      if(abDtI<0)return;
-      const n=Number(r[abDtI]);let d;
-      if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
-      if(!d)return;
-      const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      if(from&&ds<from)return;if(to&&ds>to)return;
-      abHrs[d.getHours()]++;
-    });
-  }
-  const hasAb=abHrs.some(v=>v>0);
+  // Abandoned data filtered by date AND channel
+  const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
+  const abChI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h==='channel'||h==='platform');
+  const abFilt=S.abRaw.filter(r=>{
+    if(abDtI<0)return false;
+    const n=Number(r[abDtI]);let d;
+    if(!isNaN(n)&&n>1e12)d=new Date(n);else d=parseDate(r[abDtI]);
+    if(!d)return false;
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(from&&ds<from)return false;if(to&&ds>to)return false;
+    // Apply channel filter if selected
+    if(filterChan&&abChI>=0&&String(r[abChI]||'').trim()!==filterChan)return false;
+    return true;
+  });
 
-  if(useH){
-    const hrs=new Array(24).fill(0);
-    data.forEach(r=>{const h=getHour(r[C.date]);if(h>=0)hrs[h]++;});
-    if(lbl)lbl.textContent=`Hourly breakdown${filterChan?' · '+filterChan:''}${hasAb?' · 🔴 Abandoned':''}`;
-    const datasets=[{
-      label:'Conversations',data:hrs,
-      backgroundColor:'rgba(107,31,124,.45)',
-      hoverBackgroundColor:'#6B1F7C',
-      borderRadius:4,borderSkipped:false,
-      order:2
-    }];
-    if(hasAb)datasets.push({
-      label:'Abandoned',data:abHrs,
-      backgroundColor:'rgba(226,75,74,.9)',
-      hoverBackgroundColor:'#c03030',
-      borderColor:'#E24B4A',
-      borderWidth:1,
-      borderRadius:4,borderSkipped:false,
-      order:1,
-      datalabels:{
-        display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,
-        color:'#E24B4A',
-        font:{size:9,weight:'bold'},
-        anchor:'end',align:'top',
-        formatter:v=>v>0?v:''
-      }
-    });
-    S.charts.hour=new Chart(document.getElementById('hourChart'),{
-      type:'bar',
-      data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets},
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{display:hasAb,position:'top',labels:{font:{size:11},boxWidth:11,padding:10}},
-          tooltip:{callbacks:{
-            afterBody:items=>{
-              const hr=items[0].dataIndex;
-              const ab=abHrs[hr];
-              const conv=hrs[hr];
-              return ab>0?[`Abandoned: ${ab}  |  Conv: ${conv}`]:[];
-            }
-          }}
-        },
-        scales:{
-          x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},
-          y:{ticks:{font:{size:9}},beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'}}
-        }
-      }
-    });
-    // Shift summary: conversations + abandoned per shift
-    const sumEl=document.getElementById('abHourSummary');
-    if(sumEl){
-      const cs1=hrs.slice(0,8).reduce((a,b)=>a+b,0);
-      const cs2=hrs.slice(8,16).reduce((a,b)=>a+b,0);
-      const cs3=hrs.slice(16,24).reduce((a,b)=>a+b,0);
-      const as1=abHrs.slice(0,8).reduce((a,b)=>a+b,0);
-      const as2=abHrs.slice(8,16).reduce((a,b)=>a+b,0);
-      const as3=abHrs.slice(16,24).reduce((a,b)=>a+b,0);
-      sumEl.style.display='flex';
-      sumEl.innerHTML=`
-        <span style="font-size:10px;font-weight:700;color:var(--muted);align-self:center;margin-right:4px">Shifts:</span>
-        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌙 00–08: <strong>${cs1}</strong>${hasAb?` · 🔴${as1}`:''}</span>
-        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">☀️ 08–16: <strong>${cs2}</strong>${hasAb?` · 🔴${as2}`:''}</span>
-        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌆 16–00: <strong>${cs3}</strong>${hasAb?` · 🔴${as3}`:''}</span>
-        ${hasAb?`<span style="padding:3px 10px;background:#E24B4A;color:white;border-radius:20px;font-size:10px;font-weight:700">🔴 Abandoned Total: ${as1+as2+as3}</span>`:''}`;
-    }
-  }else{
-    const d={};data.forEach(r=>{const dt=getDateStr(r[C.date]);if(dt)d[dt]=(d[dt]||0)+1;});
-    const abDaily={};
-    if(S.abRaw.length){
-      const abDtI=S.abHdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('chat request')||h.includes('date'));
-      S.abRaw.forEach(r=>{
-        if(abDtI<0)return;
-        const n=Number(r[abDtI]);let dd;
-        if(!isNaN(n)&&n>1e12)dd=new Date(n);else dd=parseDate(r[abDtI]);
-        if(!dd)return;
-        const ds=`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
-        if(from&&ds<from)return;if(to&&ds>to)return;
-        abDaily[ds]=(abDaily[ds]||0)+1;
+  // Point label plugin — shows value above each point/bar
+  const pointLabelPlugin={
+    id:'pointLabels',
+    afterDraw(chart){
+      const ctx=chart.ctx;
+      chart.data.datasets.forEach((ds,di)=>{
+        const meta=chart.getDatasetMeta(di);
+        meta.data.forEach((pt,i)=>{
+          const v=ds.data[i];if(!v)return;
+          ctx.save();
+          ctx.font=`bold 9px "IBM Plex Sans",sans-serif`;
+          ctx.fillStyle=di===0?'#4a1060':'#c03030';
+          ctx.textAlign='center';ctx.textBaseline='bottom';
+          ctx.fillText(v.toLocaleString(),pt.x,pt.y-(di===0?5:18));
+          ctx.restore();
+        });
       });
     }
+  };
+
+  const commonOpts={
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:abFilt.length>0,position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y?.toLocaleString?.()??ctx.parsed.toLocaleString()}`}}
+    },
+    layout:{padding:{top:20,right:20,left:5}}
+  };
+
+  if(mode==='hourly'){
+    const hrs=new Array(24).fill(0);
+    data.forEach(r=>{const h=getHour(r[C.date]);if(h>=0)hrs[h]++;});
+    const abHrs=new Array(24).fill(0);
+    abFilt.forEach(r=>{const d=parseDate(r[abDtI]);if(d)abHrs[d.getHours()]++;});
+    const hasAb=abHrs.some(v=>v>0);
+    if(lbl)lbl.textContent=`Hourly breakdown${filterChan?' · '+filterChan:''}`;
+    const datasets=[{label:'Conversations',data:hrs,backgroundColor:'rgba(107,31,124,.45)',hoverBackgroundColor:'#6B1F7C',borderRadius:4,borderSkipped:false,order:2}];
+    if(hasAb)datasets.push({label:'Abandoned',data:abHrs,backgroundColor:'rgba(226,75,74,.85)',hoverBackgroundColor:'#c03030',borderRadius:4,borderSkipped:false,order:1});
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'bar',data:{labels:Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`),datasets},plugins:[pointLabelPlugin],options:{...commonOpts,scales:{x:{ticks:{font:{size:8},maxRotation:0},grid:{display:false}},y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}}}});
+    // Shift summary
+    const sumEl=document.getElementById('abHourSummary');if(sumEl){
+      const cs=[hrs.slice(0,8),hrs.slice(8,16),hrs.slice(16,24)].map(s=>s.reduce((a,b)=>a+b,0));
+      const as=[abHrs.slice(0,8),abHrs.slice(8,16),abHrs.slice(16,24)].map(s=>s.reduce((a,b)=>a+b,0));
+      const totAb=as.reduce((a,b)=>a+b,0);
+      sumEl.style.display='flex';
+      sumEl.innerHTML=`<span style="font-size:10px;font-weight:700;color:var(--muted);align-self:center">Shifts:</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌙 00–08: ${cs[0]}${totAb>0?' · 🔴'+as[0]:''}</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">☀️ 08–16: ${cs[1]}${totAb>0?' · 🔴'+as[1]:''}</span>
+        <span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🌆 16–00: ${cs[2]}${totAb>0?' · 🔴'+as[2]:''}</span>
+        ${totAb>0?`<span style="padding:3px 10px;background:#E24B4A;color:white;border-radius:20px;font-size:10px;font-weight:700">🔴 Abandoned Total: ${totAb}</span>`:''}`;
+    }
+  } else if(mode==='daily'){
+    const d={};data.forEach(r=>{const dt=getDateStr(r[C.date]);if(dt)d[dt]=(d[dt]||0)+1;});
+    const abDaily={};abFilt.forEach(r=>{const dd=parseDate(r[abDtI]);if(dd){const ds=`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;abDaily[ds]=(abDaily[ds]||0)+1;}});
     const s=Object.keys(d).sort();if(!s.length)return;
-    if(lbl)lbl.textContent=`Daily trend${filterChan?' · '+filterChan:''}${hasAb?' · 🔴 Abandoned':''}`;
-    const datasets=[{
-      label:'Conversations',
-      data:s.map(x=>d[x]),
-      borderColor:'#6B1F7C',
-      backgroundColor:'rgba(107,31,124,.07)',
-      borderWidth:2,
-      pointRadius:4,
-      pointBackgroundColor:'#6B1F7C',
-      pointBorderColor:'white',
-      pointBorderWidth:2,
-      fill:true,
-      tension:.3,
-      order:2
-    }];
-    if(Object.keys(abDaily).length)datasets.push({
-      label:'Abandoned',
-      data:s.map(x=>abDaily[x]||0),
-      borderColor:'#E24B4A',
-      backgroundColor:'rgba(226,75,74,.07)',
-      borderWidth:2,
-      pointRadius:3,
-      pointBackgroundColor:'#E24B4A',
-      pointBorderColor:'white',
-      pointBorderWidth:1,
-      fill:true,
-      tension:.3,
-      order:1
+    if(lbl)lbl.textContent=`Daily trend${filterChan?' · '+filterChan:''}`;
+    const hasAb=Object.keys(abDaily).length>0;
+    const datasets=[{label:'Conversations',data:s.map(x=>d[x]),borderColor:'#6B1F7C',backgroundColor:'rgba(107,31,124,.07)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#6B1F7C',pointBorderColor:'white',pointBorderWidth:2,fill:true,tension:.3,order:2}];
+    if(hasAb)datasets.push({label:'Abandoned',data:s.map(x=>abDaily[x]||0),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,.07)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#E24B4A',pointBorderColor:'white',pointBorderWidth:1,fill:true,tension:.3,order:1});
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'line',data:{labels:s.map(x=>x.slice(5)),datasets},plugins:[pointLabelPlugin],options:{...commonOpts,scales:{x:{ticks:{font:{size:9},maxTicksLimit:14},grid:{display:false}},y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}}}});
+    const sumEl=document.getElementById('abHourSummary');if(sumEl){
+      const totConv=s.reduce((a,x)=>a+(d[x]||0),0);const totAb=s.reduce((a,x)=>a+(abDaily[x]||0),0);
+      sumEl.style.display='flex';
+      sumEl.innerHTML=`<span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">💬 Total: ${totConv.toLocaleString()}</span>${totAb>0?`<span style="padding:3px 10px;background:#E24B4A;color:white;border-radius:20px;font-size:10px;font-weight:700">🔴 Abandoned: ${totAb}</span><span style="padding:3px 10px;background:#FCEBEB;color:#c03030;border-radius:20px;font-size:10px;font-weight:700">Drop: ${Math.round(totAb/(totConv||1)*100)}%</span>`:''}`;
+    }
+  } else {
+    // Monthly mode
+    const mMap={};data.forEach(r=>{const dt=getDateStr(r[C.date]);if(dt){const m=dt.slice(0,7);mMap[m]=(mMap[m]||0)+1;}});
+    const abMonthly={};abFilt.forEach(r=>{const dd=parseDate(r[abDtI]);if(dd){const m=`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}`;abMonthly[m]=(abMonthly[m]||0)+1;}});
+    const months=Object.keys(mMap).sort();if(!months.length)return;
+    const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mLabel=m=>{const[y,mo]=m.split('-');return`${names[parseInt(mo)-1]}-${y.slice(2)}`;};
+    if(lbl)lbl.textContent=`Monthly trend${filterChan?' · '+filterChan:''}`;
+    const hasAb=Object.keys(abMonthly).length>0;
+    const datasets=[{label:'Conversations',data:months.map(m=>mMap[m]),borderColor:'#6B1F7C',backgroundColor:'rgba(107,31,124,.07)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#6B1F7C',pointBorderColor:'white',pointBorderWidth:2,fill:true,tension:.3,order:2}];
+    if(hasAb)datasets.push({label:'Abandoned',data:months.map(m=>abMonthly[m]||0),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,.07)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#E24B4A',pointBorderColor:'white',pointBorderWidth:1,fill:true,tension:.3,order:1});
+    S.charts.hour=new Chart(document.getElementById('hourChart'),{type:'line',data:{labels:months.map(mLabel),datasets},plugins:[pointLabelPlugin],options:{...commonOpts,scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}}}});
+    const sumEl=document.getElementById('abHourSummary');if(sumEl){
+      const totConv=months.reduce((a,m)=>a+(mMap[m]||0),0);const totAb=months.reduce((a,m)=>a+(abMonthly[m]||0),0);
+      sumEl.style.display='flex';
+      sumEl.innerHTML=`<span style="padding:3px 10px;background:#f0ebf7;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">💬 Total: ${totConv.toLocaleString()}</span>${totAb>0?`<span style="padding:3px 10px;background:#E24B4A;color:white;border-radius:20px;font-size:10px;font-weight:700">🔴 Abandoned: ${totAb}</span>`:''}`;
+    }
+  }
+}
+
+
+// ══ PRE/POST/NON-STC TREND CHART ══════════════════════════════════════
+window._ppTypes=new Set(['POST','PREP','NONSTC']);
+window._ppChan=null;
+
+function togglePPType(type,btn){
+  if(window._ppTypes.has(type)){
+    if(window._ppTypes.size>1)window._ppTypes.delete(type);
+  }else{window._ppTypes.add(type);}
+  document.querySelectorAll('.pp-type').forEach(b=>{
+    const t=b.textContent.includes('POST')&&!b.textContent.includes('PREP')?'POST':b.textContent.includes('PREP')?'PREP':'NONSTC';
+    b.classList.toggle('sel',window._ppTypes.has(t));
+  });
+  renderPPChart(window._ppChan);
+}
+
+function renderPPChart(filterChan,btn){
+  if(btn){document.querySelectorAll('#ppChanSel .fbtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+  window._ppChan=filterChan||null;
+  const C=S.cols;const CA=detectCols(S.agHdrs);const CB=detectCols(S.botHdrs);
+  if(!S.raw.length)return;
+  const from=document.getElementById('dFrom').value;const to=document.getElementById('dTo').value;
+  const daysDiff=from&&to?Math.round((new Date(to)-new Date(from))/(1000*86400)):99;
+  const mode=daysDiff<=2?'hourly':daysDiff<=60?'daily':'monthly';
+
+  // Collect all rows from both bot and agent filtered by date+channel
+  function getRows(raw,hdrs){
+    const C2=detectCols(hdrs);
+    return raw.filter(r=>{
+      if(isExcluded(r,C2))return false;
+      if((from||to)&&C2.date>=0){const d=getDateStr(r[C2.date]);if(!d)return true;if(from&&d<from)return false;if(to&&d>to)return false;}
+      if(filterChan&&C2.chan>=0&&String(r[C2.chan]||'').trim()!==filterChan)return false;
+      return true;
     });
-    S.charts.hour=new Chart(document.getElementById('hourChart'),{
-      type:'line',
-      data:{labels:s.map(x=>x.slice(5)),datasets},
-      plugins:[{
-        id:'pointLabels',
-        afterDraw(chart){
-          const ctx=chart.ctx;
-          chart.data.datasets.forEach((ds,di)=>{
-            if(di>0)return; // only conversations dataset
-            const meta=chart.getDatasetMeta(di);
-            meta.data.forEach((pt,i)=>{
-              const v=ds.data[i];if(!v)return;
-              ctx.save();
-              ctx.font='bold 10px "IBM Plex Sans",sans-serif';
-              ctx.fillStyle='#4a1060';
-              ctx.textAlign='center';ctx.textBaseline='bottom';
-              ctx.fillText(v.toLocaleString(),pt.x,pt.y-5);
-              ctx.restore();
-            });
-          });
-        }
-      }],
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{display:Object.keys(abDaily).length>0,position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},
-          tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`}}
-        },
-        scales:{
-          x:{ticks:{font:{size:9},maxTicksLimit:14},grid:{display:false}},
-          y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}
-        }
+  }
+  const botRows=getRows(S.botRaw,S.botHdrs);
+  const agRows=getRows(S.agRaw,S.agHdrs).filter(r=>!isSocial(r,CA));
+  const allRows=[...botRows,...agRows];
+
+  function getPP(rows,hdrs2){
+    const C2=detectCols(hdrs2);
+    const ppI=C2.prepost;
+    return rows.map(r=>{
+      const v=ppI>=0?String(r[ppI]||'').toUpperCase().trim():'';
+      if(v==='POST')return'POST';
+      if(v==='PREP'||v==='PRE')return'PREP';
+      return'NONSTC';
+    });
+  }
+
+  function getKey(r,hdrs2){
+    const C2=detectCols(hdrs2);if(C2.date<0)return null;
+    const dt=getDateStr(r[C2.date]);if(!dt)return null;
+    if(mode==='hourly')return getHour(r[C2.date]);
+    if(mode==='monthly')return dt.slice(0,7);
+    return dt;
+  }
+
+  // Build data maps
+  const maps={POST:{},PREP:{},NONSTC:{}};
+  [...botRows.map(r=>({r,hdrs:S.botHdrs})),...agRows.map(r=>({r,hdrs:S.agHdrs}))].forEach(({r,hdrs})=>{
+    const C2=detectCols(hdrs);const ppI=C2.prepost;
+    const v=ppI>=0?String(r[ppI]||'').toUpperCase().trim():'';
+    const cat=v==='POST'?'POST':v==='PREP'||v==='PRE'?'PREP':'NONSTC';
+    const key=getKey(r,hdrs);if(key===null)return;
+    maps[cat][key]=(maps[cat][key]||0)+1;
+  });
+
+  const colors={POST:'#1D9E75',PREP:'#6B1F7C',NONSTC:'#aaaaaa'};
+  const labels24=Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`);
+  const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mLabel=m=>{const[y,mo]=m.split('-');return`${names[parseInt(mo)-1]}-${y.slice(2)}`;};
+
+  let labels,xKeys;
+  if(mode==='hourly'){labels=labels24;xKeys=Array.from({length:24},(_,i)=>i);}
+  else if(mode==='daily'){xKeys=[...new Set([...Object.keys(maps.POST),...Object.keys(maps.PREP),...Object.keys(maps.NONSTC)])].sort();labels=xKeys.map(x=>x.slice(5));}
+  else{xKeys=[...new Set([...Object.keys(maps.POST),...Object.keys(maps.PREP),...Object.keys(maps.NONSTC)])].sort();labels=xKeys.map(mLabel);}
+
+  const pointLabelPlugin2={id:'ppLabels',afterDraw(chart){
+    const ctx=chart.ctx;
+    chart.data.datasets.forEach((ds,di)=>{
+      const meta=chart.getDatasetMeta(di);
+      meta.data.forEach((pt,i)=>{
+        const v=ds.data[i];if(!v)return;
+        ctx.save();ctx.font='bold 9px "IBM Plex Sans",sans-serif';
+        ctx.fillStyle=ds.borderColor||'#333';ctx.textAlign='center';ctx.textBaseline='bottom';
+        ctx.fillText(v.toLocaleString(),pt.x,pt.y-5);ctx.restore();
+      });
+    });
+  }};
+
+  const datasets=[...window._ppTypes].map(type=>({
+    label:type==='NONSTC'?'Non-STC':type,
+    data:xKeys.map(k=>maps[type][k]||0),
+    borderColor:colors[type],backgroundColor:colors[type]+'15',
+    borderWidth:2,pointRadius:4,pointBackgroundColor:colors[type],
+    pointBorderColor:'white',pointBorderWidth:2,fill:false,tension:.3
+  }));
+
+  if(S.charts.pp2)S.charts.pp2.destroy();
+  const lbl=document.getElementById('ppLbl');
+  if(lbl)lbl.textContent=`${mode==='hourly'?'Hourly':mode==='daily'?'Daily':'Monthly'} trend${filterChan?' · '+filterChan:''}`;
+  S.charts.pp2=new Chart(document.getElementById('ppChart2'),{
+    type: mode==='hourly'?'bar':'line',
+    data:{labels,datasets},
+    plugins:[pointLabelPlugin2],
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{mode:'index',intersect:false}},
+      layout:{padding:{top:20,right:20,left:5}},
+      scales:{
+        x:{ticks:{font:{size:mode==='hourly'?8:9},maxRotation:0,maxTicksLimit:mode==='hourly'?24:14},grid:{display:false}},
+        y:{ticks:{font:{size:9}},min:0,grace:'20%',grid:{color:'rgba(0,0,0,.04)'}}
       }
-    });
+    }
+  });
+
+  // Summary chips
+  const sumEl=document.getElementById('ppSummary');if(sumEl){
+    const totals={POST:Object.values(maps.POST).reduce((a,b)=>a+b,0),PREP:Object.values(maps.PREP).reduce((a,b)=>a+b,0),NONSTC:Object.values(maps.NONSTC).reduce((a,b)=>a+b,0)};
+    const grand=totals.POST+totals.PREP+totals.NONSTC||1;
+    sumEl.style.display='flex';
+    sumEl.innerHTML=[
+      window._ppTypes.has('POST')?`<span style="padding:3px 10px;background:#1D9E7520;color:#0f7a5a;border-radius:20px;font-size:10px;font-weight:700">✅ POST: ${totals.POST.toLocaleString()} (${Math.round(totals.POST/grand*100)}%)</span>`:'',
+      window._ppTypes.has('PREP')?`<span style="padding:3px 10px;background:#6B1F7C20;color:#4a1060;border-radius:20px;font-size:10px;font-weight:700">🟣 PREP: ${totals.PREP.toLocaleString()} (${Math.round(totals.PREP/grand*100)}%)</span>`:'',
+      window._ppTypes.has('NONSTC')?`<span style="padding:3px 10px;background:#eeeeee;color:#555;border-radius:20px;font-size:10px;font-weight:700">⚪ Non-STC: ${totals.NONSTC.toLocaleString()} (${Math.round(totals.NONSTC/grand*100)}%)</span>`:''
+    ].join('');
   }
 }
 
