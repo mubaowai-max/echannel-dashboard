@@ -458,7 +458,27 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
     <div class="page content" id="page-upload">
       <div style="max-width:820px;margin:0 auto">
         <div style="font-size:18px;font-weight:700;margin-bottom:4px">Upload Your Files</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Each section accepts multiple files — they will be merged automatically.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Each section accepts multiple files — they will be merged automatically.</div>
+
+        <!-- GITHUB LOAD SECTION -->
+        <div class="card" style="margin-bottom:20px;border-left:4px solid #24292f;background:linear-gradient(135deg,#f6f8fa,#fff)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:44px;height:44px;background:#24292f;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#24292f">📂 Load from GitHub Repository</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Automatically loads all files from <code>data/bot/</code> · <code>data/agent/</code> · <code>data/abandoned/</code></div>
+              <div id="ghStatus" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+            </div>
+            <div style="flex-shrink:0">
+              <button onclick="loadFromGitHub()" id="ghBtn" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#24292f;color:white;border:none;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                Load from GitHub
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- BOT FILES -->
         <div class="card" style="margin-bottom:14px;border-left:4px solid var(--green)">
@@ -2898,6 +2918,138 @@ function downloadDashExcel(){
 function showXlMenu(){const m=document.getElementById('xlMenu');m.style.display=m.style.display==='none'?'block':'none';}
 function hideXlMenu(){const m=document.getElementById('xlMenu');if(m)m.style.display='none';}
 document.addEventListener('click',e=>{if(!e.target.closest('#xlBtn')&&!e.target.closest('#xlMenu'))hideXlMenu();});
+
+// ══ GITHUB LOADER ════════════════════════════════════════════════════
+const GH_REPO='mubaowai-max/echannel-dashboard';
+const GH_API=`https://api.github.com/repos/${GH_REPO}/contents/data`;
+const GH_RAW=`https://raw.githubusercontent.com/${GH_REPO}/main/data`;
+
+async function loadFromGitHub(){
+  const btn=document.getElementById('ghBtn');
+  const status=document.getElementById('ghStatus');
+  btn.disabled=true;btn.textContent='⏳ Loading...';
+  status.innerHTML='<span style="color:var(--amber)">Connecting to GitHub...</span>';
+  try{
+    // Load bot files
+    status.innerHTML='<span style="color:var(--amber)">📂 Loading Bot files...</span>';
+    const botFiles=await ghListFiles('bot');
+    for(const f of botFiles){
+      status.innerHTML=`<span style="color:var(--amber)">⬇ ${f}...</span>`;
+      const blob=await ghFetchFile(`bot/${f}`);
+      await loadBotFileFromBlob(blob,f);
+    }
+    // Load agent files
+    status.innerHTML='<span style="color:var(--amber)">📂 Loading Agent files...</span>';
+    const agFiles=await ghListFiles('agent');
+    for(const f of agFiles){
+      status.innerHTML=`<span style="color:var(--amber)">⬇ ${f}...</span>`;
+      const blob=await ghFetchFile(`agent/${f}`);
+      await loadAgentFileFromBlob(blob,f);
+    }
+    // Load abandoned files
+    status.innerHTML='<span style="color:var(--amber)">📂 Loading Abandoned files...</span>';
+    const abFiles=await ghListFiles('abandoned');
+    for(const f of abFiles){
+      status.innerHTML=`<span style="color:var(--amber)">⬇ ${f}...</span>`;
+      const blob=await ghFetchFile(`abandoned/${f}`);
+      await loadAbFileFromBlob(blob,f);
+    }
+    const total=(botFiles.length+agFiles.length+abFiles.length);
+    status.innerHTML=`<span style="color:var(--green)">✅ Loaded ${total} files — Bot: ${botFiles.length} · Agent: ${agFiles.length} · Abandoned: ${abFiles.length}</span>`;
+    // Process all loaded data
+    if(S.botRaw.length||S.agRaw.length)mergeAndProcess();
+    if(S.abRaw.length){renderAbandoned();const bd=document.getElementById('abBdg');if(bd){bd.style.display='inline';bd.textContent=S.abRaw.length;}}
+    rebuildFileTags();updateUploadStatus();
+    btn.textContent='✅ Loaded!';setTimeout(()=>{btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg> Load from GitHub';},3000);
+  }catch(e){
+    status.innerHTML=`<span style="color:var(--red)">❌ Error: ${e.message}</span>`;
+    btn.disabled=false;btn.textContent='Retry';
+  }
+}
+
+async function ghListFiles(folder){
+  const res=await fetch(`${GH_API}/${folder}`);
+  if(!res.ok)return[];
+  const items=await res.json();
+  return items.filter(f=>f.type==='file'&&!f.name.startsWith('.')&&(f.name.endsWith('.xlsx')||f.name.endsWith('.xls')||f.name.endsWith('.csv'))).map(f=>f.name);
+}
+
+async function ghFetchFile(path){
+  const res=await fetch(`${GH_RAW}/${path}`);
+  if(!res.ok)throw new Error(`Cannot fetch ${path}`);
+  return await res.blob();
+}
+
+function loadBotFileFromBlob(blob,name){
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'YYYY-MM-DD HH:mm:ss'});
+        if(!rows.length){resolve();return;}
+        const hdrs=(rows[0]||[]).map(h=>String(h||'').trim());
+        const data=rows.slice(1).filter(r=>r.some(c=>c!==undefined&&c!==''));
+        if(!S.botHdrs.length)S.botHdrs=hdrs;
+        const hhI=hdrs.map(h=>h.toLowerCase()).findIndex(h=>h.includes('human handover'));
+        const botOnly=hhI>=0?data.filter(r=>String(r[hhI]||'').toUpperCase().trim()==='NO'):data;
+        if(!S._botFiles)S._botFiles=[];if(!S._botRawParts)S._botRawParts=[];
+        S._botFiles.push(name);S._botRawParts.push(botOnly);
+        S.botRaw=[...S.botRaw,...botOnly];
+        if(!S._agRawAll)S._agRawAll=[];
+      }catch(e){}
+      resolve();
+    };
+    r.readAsArrayBuffer(blob);
+  });
+}
+
+function loadAgentFileFromBlob(blob,name){
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'YYYY-MM-DD HH:mm:ss'});
+        if(!rows.length){resolve();return;}
+        const hdrs=(rows[0]||[]).map(h=>String(h||'').trim());
+        const data=rows.slice(1).filter(r=>r.some(c=>c!==undefined&&c!==''));
+        if(!S.agHdrs.length)S.agHdrs=hdrs;
+        if(!S._agFiles)S._agFiles=[];if(!S._agRawParts)S._agRawParts=[];
+        if(!S._agRawAll)S._agRawAll=[];
+        S._agFiles.push(name);S._agRawParts.push(data);
+        S._agRawAll=[...S._agRawAll,...data];
+        S.agRaw=S._agRawAll;
+      }catch(e){}
+      resolve();
+    };
+    r.readAsArrayBuffer(blob);
+  });
+}
+
+function loadAbFileFromBlob(blob,name){
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'YYYY-MM-DD HH:mm:ss'});
+        if(!rows.length){resolve();return;}
+        const hdrs=(rows[0]||[]).map(h=>String(h||'').trim());
+        const data=rows.slice(1).filter(r=>r.some(c=>c!==undefined&&c!==''));
+        if(!S.abHdrs.length)S.abHdrs=hdrs;
+        if(!S._abFiles)S._abFiles=[];if(!S._abRawParts)S._abRawParts=[];
+        S._abFiles.push(name);S._abRawParts.push(data);
+        S.abRaw=[...S.abRaw,...data];
+      }catch(e){}
+      resolve();
+    };
+    r.readAsArrayBuffer(blob);
+  });
+}
 
 function clearAll(){
   S.raw=[];S.hdrs=[];S.filt=[];S.parsed=null;S.chatHist=[];S.selChans=new Set();S.selDepts=new Set();
